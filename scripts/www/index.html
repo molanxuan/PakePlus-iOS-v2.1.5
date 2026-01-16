@@ -1,88 +1,3181 @@
 <!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <link rel="stylesheet" href="./static/css/styles.css" />
-        <meta
-            http-equiv="Content-Security-Policy"
-            content="default-src * 'unsafe-inline' 'unsafe-eval'"
-        />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Tauri App</title>
-        <script src="./static/js/main.js"></script>
-    </head>
-    <body>
-        <main class="container">
-            <h1>Welcome to TauriMan</h1>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>仓库管理系统</title>
+  <!-- Tailwind CSS v3 -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome -->
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+  <!-- Tailwind 配置 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#3498db',
+            secondary: '#2ecc71',
+            danger: '#e74c3c',
+            warning: '#f39c12',
+            dark: {
+              100: '#1e293b',
+              200: '#162032',
+              300: '#0f172a',
+              400: '#0c1220'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .text-shadow {
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
+      .card {
+        @apply bg-dark-200 bg-opacity-60 backdrop-blur-sm rounded-lg border border-dark-100 p-4 hover:border-primary/50 transition-all duration-300;
+      }
+      .btn {
+        @apply px-4 py-2 rounded font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-dark-300;
+      }
+      .btn-primary {
+        @apply bg-primary text-white hover:bg-primary/90 focus:ring-primary/50;
+      }
+      .btn-secondary {
+        @apply bg-secondary text-white hover:bg-secondary/90 focus:ring-secondary/50;
+      }
+      .btn-danger {
+        @apply bg-danger text-white hover:bg-danger/90 focus:ring-danger/50;
+      }
+      .btn-outline {
+        @apply border border-gray-500 text-gray-300 hover:bg-gray-700 focus:ring-gray-500/50;
+      }
+      .input {
+        @apply bg-dark-300 border border-dark-100 rounded px-3 py-2 text-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-200;
+      }
+      .select {
+        @apply bg-dark-300 border border-dark-100 rounded px-3 py-2 text-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-200;
+      }
+      .table-header {
+        @apply px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider;
+      }
+      .table-cell {
+        @apply px-6 py-4 whitespace-nowrap text-sm text-gray-300;
+      }
+      .nav-link {
+        @apply flex items-center px-4 py-3 text-gray-300 rounded-lg hover:bg-dark-200 hover:text-white transition-all duration-200;
+      }
+      .nav-link.active {
+        @apply bg-primary/20 text-primary border-l-4 border-primary;
+      }
+      .badge {
+        @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+      }
+      .badge-success {
+        @apply bg-secondary/20 text-secondary;
+      }
+      .badge-warning {
+        @apply bg-warning/20 text-warning;
+      }
+      .badge-danger {
+        @apply bg-danger/20 text-danger;
+      }
+    }
+  </style>
+</head>
+<body class="bg-dark-400 text-gray-200 min-h-screen flex">
+  <!-- 侧边导航栏 -->
+  <aside class="w-64 bg-dark-300 border-r border-dark-100 flex flex-col">
+    <!-- 系统Logo -->
+    <div class="p-4 border-b border-dark-100">
+      <h1 class="text-xl font-bold text-white flex items-center">
+        <i class="fa fa-cubes mr-3 text-primary"></i>
+        仓库管理系统
+      </h1>
+    </div>
+    
+    <!-- 导航菜单 -->
+    <nav class="flex-1 overflow-y-auto py-4">
+      <ul class="space-y-2 px-3">
+        <li>
+          <a href="#dashboard" class="nav-link active" data-section="dashboard">
+            <i class="fa fa-dashboard w-5 h-5 mr-3"></i>
+            <span>仪表盘</span>
+          </a>
+        </li>
+        <li>
+          <a href="#inbound" class="nav-link" data-section="inbound">
+            <i class="fa fa-sign-in w-5 h-5 mr-3"></i>
+            <span>入库管理</span>
+          </a>
+        </li>
+        <li>
+          <a href="#outbound" class="nav-link" data-section="outbound">
+            <i class="fa fa-sign-out w-5 h-5 mr-3"></i>
+            <span>出库管理</span>
+          </a>
+        </li>
+        <li>
+          <a href="#products" class="nav-link" data-section="products">
+            <i class="fa fa-cubes w-5 h-5 mr-3"></i>
+            <span>产品管理</span>
+          </a>
+        </li>
+        <li>
+          <a href="#inventory" class="nav-link" data-section="inventory">
+            <i class="fa fa-search w-5 h-5 mr-3"></i>
+            <span>库存查询</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+    
+    <!-- 用户信息 -->
+    <div class="p-4 border-t border-dark-100">
+      <div class="flex items-center">
+        <div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary">
+          <i class="fa fa-user"></i>
+        </div>
+        <div class="ml-3">
+          <p class="text-sm font-medium text-white">管理员</p>
+          <p class="text-xs text-gray-400">admin@example.com</p>
+        </div>
+      </div>
+    </div>
+  </aside>
 
-            <div class="row">
-                <a
-                    href="https://tauri.app"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    <img
-                        src="./assets/tauri.svg"
-                        class="logo tauri"
-                        alt="Tauri logo"
-                    />
-                </a>
-                <a
-                    href="https://pakeplus.com/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    <img
-                        src="https://hk.gh-proxy.org/https://github.com/Sjj1024/PakePlus/blob/main/app-icon.png"
-                        class="logo vanilla"
-                        alt="JavaScript logo"
-                    />
-                </a>
+  <!-- 主内容区 -->
+  <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gradient-to-br from-dark-400 to-dark-300">
+    <!-- 顶部状态栏 -->
+    <header class="bg-dark-300 border-b border-dark-100 py-4 px-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-lg font-medium text-white" id="page-title">仪表盘</h2>
+          <p class="text-sm text-gray-400" id="page-subtitle">系统概览</p>
+        </div>
+        <div class="flex items-center space-x-4">
+          <button class="btn btn-outline text-sm py-1.5 px-3" id="clear-data">
+            <i class="fa fa-trash mr-2"></i>清除数据
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- 内容区域 -->
+    <div class="p-6">
+      <!-- 仪表盘 -->
+      <section id="dashboard-section" class="section active">
+        <!-- 统计卡片 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+          <div class="card cursor-pointer hover:shadow-lg transition-shadow" id="categories-card">
+            <div class="flex justify-between items-start">
+              <div>
+                <h3 class="text-gray-400 text-sm">产品种类</h3>
+                <p class="text-2xl font-bold text-white mt-1" id="total-categories">0</p>
+              </div>
+              <div class="p-2 rounded-full bg-primary/10 text-primary">
+                <i class="fa fa-folder-open"></i>
+              </div>
             </div>
-            <p>Click to get data</p>
-            <form class="row" id="greet-form">
-                <input id="greet-input" placeholder="Enter a name..." />
-                <button type="submit" id="getdata">GET DATA</button>
-            </form>
-            <div class="functions">
-                <a href="./book.html" target="_self">跳转到book.html</a>
-                <a
-                    href="https://www.baidu.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    >跳到百度blank
-                </a>
-                <a
-                    href="https://www.baidu.com"
-                    target="_self"
-                    rel="noopener noreferrer"
-                >
-                    跳到百度self
-                </a>
-                <button onclick="sayHello()">点击我</button>
-                <button onclick="sayHello()">下载文件</button>
-                <button onclick="sayHello()">上传文件</button>
-                <button onclick="sayHello()">访问相机</button>
-                <button onclick="sayHello()">访问麦克风</button>
-                <button onclick="sayHello()">访问相册</button>
-                <button class="btn" onclick="openWechat()">打开微信</button>
-                <button class="btn" onclick="openWechatScan()">
-                    打开扫一扫
+
+          </div>
+          
+          <div class="card cursor-pointer hover:shadow-lg transition-shadow" id="specs-card">
+            <div class="flex justify-between items-start">
+              <div>
+                <h3 class="text-gray-400 text-sm">产品规格</h3>
+                <p class="text-2xl font-bold text-white mt-1" id="total-specs">0</p>
+              </div>
+              <div class="p-2 rounded-full bg-secondary/10 text-secondary">
+                <i class="fa fa-cubes"></i>
+              </div>
+            </div>
+
+          </div>
+          
+          <div class="card cursor-pointer hover:shadow-lg transition-shadow" id="inventory-card">
+            <div class="flex justify-between items-start">
+              <div>
+                <h3 class="text-gray-400 text-sm">总库存</h3>
+                <p class="text-2xl font-bold text-white mt-1" id="total-inventory">0</p>
+              </div>
+              <div class="p-2 rounded-full bg-warning/10 text-warning">
+                <i class="fa fa-cubes"></i>
+              </div>
+            </div>
+
+          </div>
+          
+          <div class="card cursor-pointer hover:shadow-lg transition-shadow" id="low-stock-card">
+            <div class="flex justify-between items-start">
+              <div>
+                <h3 class="text-gray-400 text-sm">库存预警</h3>
+                <p class="text-2xl font-bold text-white mt-1" id="low-stock">0</p>
+              </div>
+              <div class="p-2 rounded-full bg-danger/10 text-danger">
+                <i class="fa fa-exclamation-triangle"></i>
+              </div>
+            </div>
+
+          </div>
+        </div>
+        
+        <!-- 图表区域 -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          <!-- 库存概览饼图 -->
+          <div class="card">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-lg font-medium text-white">库存概览</h3>
+              <div class="flex space-x-2">
+                <button class="btn btn-outline text-xs py-1 px-2 chart-filter" data-chart="inventory-overview" data-filter="category">
+                  按种类
                 </button>
-                <button class="btn" onclick="openZhihu()">打开知乎</button>
-                <button onclick="sayHello()">打开抖音</button>
-                <button onclick="sayHello()">用浏览器打开</button>
-                <button>打开知乎</button>
+                <button class="btn btn-outline text-xs py-1 px-2 chart-filter" data-chart="inventory-overview" data-filter="status">
+                  按状态
+                </button>
+                <button class="btn btn-outline text-xs py-1 px-2 chart-filter" data-chart="inventory-overview" data-filter="spec">
+                  按规格
+                </button>
+              </div>
             </div>
-            <p id="greet-msg"></p>
-            <img src="./static/image/cursor.jpeg" alt="logo" />
-            <video
-                src="https://hk.gh-proxy.org/https://github.com/Sjj1024/PakePlus/blob/main/docs/static/videos/pakeplus.mp4"
-                autoplay
-                controls
-                style="width: 100%; height: 100%"
-            ></video>
-            <audio src="./static/music/yin.mp3" controls></audio>
-        </main>
-    </body>
+            <div class="h-64">
+              <canvas id="inventory-overview-chart"></canvas>
+            </div>
+          </div>
+          
+          <!-- 库存趋势折线图 -->
+          <div class="card">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-lg font-medium text-white">库存趋势</h3>
+              <div class="flex space-x-2">
+                <button class="btn btn-outline text-xs py-1 px-2 chart-period" data-chart="inventory-trend" data-period="week">
+                  周
+                </button>
+                <button class="btn btn-outline text-xs py-1 px-2 chart-period active" data-chart="inventory-trend" data-period="month">
+                  月
+                </button>
+                <button class="btn btn-outline text-xs py-1 px-2 chart-period" data-chart="inventory-trend" data-period="year">
+                  年
+                </button>
+              </div>
+            </div>
+            <div class="h-64">
+              <canvas id="inventory-trend-chart"></canvas>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 最近活动 -->
+        <div class="card">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-medium text-white">最近活动</h3>
+            <div class="relative">
+              <select id="activity-log-limit" class="select text-sm text-primary bg-dark-300 border-primary/30">
+                <option value="3">查看3条</option>
+                <option value="5" selected>查看5条</option>
+                <option value="all">查看全部</option>
+              </select>
+            </div>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-dark-100">
+              <thead class="bg-dark-300">
+                <tr>
+                  <th scope="col" class="table-header">时间</th>
+                  <th scope="col" class="table-header">操作</th>
+                  <th scope="col" class="table-header">产品</th>
+                  <th scope="col" class="table-header">数量</th>
+                  <th scope="col" class="table-header">状态</th>
+                </tr>
+              </thead>
+              <tbody class="bg-dark-300 bg-opacity-50 divide-y divide-dark-100" id="activity-log">
+                <tr>
+                  <td colspan="5" class="table-cell text-center text-gray-500">暂无活动记录</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- 入库管理 -->
+      <section id="inbound-section" class="section hidden">
+        <div class="card">
+          <h3 class="text-lg font-medium text-white mb-4">产品入库</h3>
+          <form id="inbound-form" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label for="inbound-category" class="block text-sm font-medium text-gray-400 mb-1">产品种类</label>
+                <select id="inbound-category" class="select w-full">
+                  <option value="">请选择产品种类</option>
+                </select>
+              </div>
+              <div class="hidden">
+                <label for="inbound-action" class="block text-sm font-medium text-gray-400 mb-1">操作类型</label>
+                <div class="flex space-x-4">
+                  <label class="inline-flex items-center">
+                    <input type="radio" name="inbound-action" value="existing" class="form-radio text-primary" checked>
+                    <span class="ml-2 text-sm">选择已有规格</span>
+                  </label>
+                  <label class="inline-flex items-center">
+                    <input type="radio" name="inbound-action" value="delete" class="form-radio text-primary">
+                    <span class="ml-2 text-sm">删除</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+            
+            <!-- 选择已有规格和入库数量 -->
+            <div id="spec-quantity-container" class="grid grid-cols-1 md:grid-cols-2 gap-4 hidden">
+              <div>
+                <label for="inbound-spec" class="block text-sm font-medium text-gray-400 mb-1">产品规格</label>
+                <select id="inbound-spec" class="select w-full" disabled>
+                  <option value="">请先选择产品种类</option>
+                </select>
+              </div>
+              <div>
+                <label for="inbound-quantity" class="block text-sm font-medium text-gray-400 mb-1">入库数量</label>
+                <input type="number" id="inbound-quantity" class="input w-full" min="1" value="1" disabled>
+              </div>
+            </div>
+            
+            <!-- 操作指引 -->
+            <div id="inbound-guide" class="text-sm text-gray-500 bg-dark-300/50 p-3 rounded-md border border-dark-200">
+              <i class="fa fa-info-circle mr-2"></i>
+              请先选择产品种类，然后选择产品规格，最后输入入库数量
+            </div>
+            
+            <div class="flex justify-end space-x-3">
+              <button type="button" class="btn btn-outline" id="reset-inbound-form">重置</button>
+              <button type="submit" class="btn btn-primary">提交入库</button>
+            </div>
+          </form>
+        </div>
+        
+        <!-- 入库记录 -->
+        <div class="card mt-6">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-medium text-white">最近入库记录</h3>
+            <button class="text-primary hover:text-primary/80 text-sm">查看全部</button>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-dark-100">
+              <thead class="bg-dark-300">
+                <tr>
+                  <th scope="col" class="table-header">时间</th>
+                  <th scope="col" class="table-header">产品种类</th>
+                  <th scope="col" class="table-header">规格 (宽×长)</th>
+                  <th scope="col" class="table-header">入库数量</th>
+                  <th scope="col" class="table-header">操作人</th>
+                </tr>
+              </thead>
+              <tbody class="bg-dark-300 bg-opacity-50 divide-y divide-dark-100" id="inbound-log">
+                <tr>
+                  <td colspan="5" class="table-cell text-center text-gray-500">暂无入库记录</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- 出库管理 -->
+      <section id="outbound-section" class="section hidden">
+        <div class="card">
+          <h3 class="text-lg font-medium text-white mb-4">产品出库</h3>
+          <form id="outbound-form" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label for="outbound-category" class="block text-sm font-medium text-gray-400 mb-1">产品种类</label>
+                <select id="outbound-category" class="select w-full">
+                  <option value="">请选择产品种类</option>
+                </select>
+              </div>
+              <div>
+                <label for="outbound-spec" class="block text-sm font-medium text-gray-400 mb-1">产品规格</label>
+                <select id="outbound-spec" class="select w-full">
+                  <option value="">请先选择产品种类</option>
+                </select>
+              </div>
+            </div>
+            
+            <div id="spec-details" class="hidden">
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <div class="card">
+                  <h4 class="text-sm font-medium text-gray-400">当前库存</h4>
+                  <p class="text-xl font-bold text-white" id="current-stock">0</p>
+                </div>
+                <div class="card">
+                  <h4 class="text-sm font-medium text-gray-400">规格</h4>
+                  <p class="text-xl font-bold text-white" id="spec-dimensions">-</p>
+                </div>
+                <div class="card">
+                  <h4 class="text-sm font-medium text-gray-400">库存状态</h4>
+                  <span class="badge" id="stock-status">未知</span>
+                </div>
+              </div>
+              
+
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label for="outbound-length" class="block text-sm font-medium text-gray-400 mb-1">出库长度 (米)</label>
+                  <input type="number" id="outbound-length" class="input w-full" step="0.01" min="0.01">
+                </div>
+                <div>
+                  <label for="outbound-quantity" class="block text-sm font-medium text-gray-400 mb-1">出库数量</label>
+                  <input type="number" id="outbound-quantity" class="input w-full" min="1">
+                </div>
+              </div>
+              
+              <div class="flex justify-end space-x-3">
+                <button type="submit" class="btn btn-primary">提交出库</button>
+              </div>
+            </div>
+          </form>
+        </div>
+        
+        <!-- 出库记录 -->
+        <div class="card mt-6">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-medium text-white">最近出库记录</h3>
+            <button class="text-primary hover:text-primary/80 text-sm">查看全部</button>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-dark-100">
+              <thead class="bg-dark-300">
+                <tr>
+                  <th scope="col" class="table-header">时间</th>
+                  <th scope="col" class="table-header">产品种类</th>
+                  <th scope="col" class="table-header">规格 (宽×长)</th>
+                  <th scope="col" class="table-header">出库数量</th>
+                  <th scope="col" class="table-header">操作人</th>
+                </tr>
+              </thead>
+              <tbody class="bg-dark-300 bg-opacity-50 divide-y divide-dark-100" id="outbound-log">
+                <tr>
+                  <td colspan="5" class="table-cell text-center text-gray-500">暂无出库记录</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- 产品管理 -->
+      <section id="products-section" class="section hidden">
+        <!-- 产品种类管理 -->
+        <div class="card mb-6">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-medium text-white">产品种类管理</h3>
+            <button class="btn btn-primary text-sm py-1.5 px-3" id="add-category-btn">
+              <i class="fa fa-plus mr-2"></i>添加种类
+            </button>
+          </div>
+          
+          <!-- 添加种类表单 -->
+          <div id="add-category-form" class="space-y-4 mb-4 hidden">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label for="category-name" class="block text-sm font-medium text-gray-400 mb-1">种类名称</label>
+                <input type="text" id="category-name" class="input w-full" placeholder="请输入产品种类名称">
+              </div>
+              <div class="flex items-end">
+                <button type="button" class="btn btn-primary" id="save-category-btn">保存</button>
+                <button type="button" class="btn btn-outline ml-3" id="cancel-category-btn">取消</button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 种类列表 -->
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-dark-100">
+              <thead class="bg-dark-300">
+                <tr>
+                  <th scope="col" class="table-header">ID</th>
+                  <th scope="col" class="table-header">名称</th>
+                  <th scope="col" class="table-header">规格数量</th>
+                  <th scope="col" class="table-header">创建时间</th>
+                  <th scope="col" class="table-header">操作</th>
+                </tr>
+              </thead>
+              <tbody class="bg-dark-300 bg-opacity-50 divide-y divide-dark-100" id="categories-list">
+                <tr>
+                  <td colspan="5" class="table-cell text-center text-gray-500">暂无产品种类</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        
+        <!-- 产品规格管理 -->
+        <div class="card">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-medium text-white">产品规格管理</h3>
+            <div class="flex space-x-3">
+              <select id="spec-category-filter" class="select text-sm py-1.5">
+                <option value="">所有种类</option>
+              </select>
+              <button class="btn btn-primary text-sm py-1.5 px-3" id="add-spec-btn">
+                <i class="fa fa-plus mr-2"></i>添加规格
+              </button>
+            </div>
+          </div>
+          
+          <!-- 添加规格表单 -->
+          <div id="add-spec-form" class="space-y-4 mb-4 hidden">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label for="spec-category" class="block text-sm font-medium text-gray-400 mb-1">产品种类</label>
+                <select id="spec-category" class="select w-full">
+                  <option value="">请选择产品种类</option>
+                </select>
+              </div>
+              <div id="spec-width-container" class="hidden">
+                <label for="spec-width" class="block text-sm font-medium text-gray-400 mb-1">宽度 (米)</label>
+                <input type="number" id="spec-width" class="input w-full" step="0.01" min="0">
+              </div>
+              <div id="spec-length-container" class="hidden">
+                <label for="spec-length" class="block text-sm font-medium text-gray-400 mb-1">长度 (米)</label>
+                <input type="number" id="spec-length" class="input w-full" step="0.01" min="0">
+              </div>
+            </div>
+            
+            <div class="flex justify-end space-x-3">
+              <button type="button" class="btn btn-primary" id="save-spec-btn">保存</button>
+              <button type="button" class="btn btn-outline" id="cancel-spec-btn">取消</button>
+            </div>
+          </div>
+          
+          <!-- 规格列表 -->
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-dark-100">
+              <thead class="bg-dark-300">
+                <tr>
+                  <th scope="col" class="table-header">ID</th>
+                  <th scope="col" class="table-header">产品种类</th>
+                  <th scope="col" class="table-header">规格 (宽×长)</th>
+                  <th scope="col" class="table-header">库存数量</th>
+                  <th scope="col" class="table-header">创建时间</th>
+                  <th scope="col" class="table-header">操作</th>
+                </tr>
+              </thead>
+              <tbody class="bg-dark-300 bg-opacity-50 divide-y divide-dark-100" id="specs-list">
+                <tr>
+                  <td colspan="6" class="table-cell text-center text-gray-500">暂无产品规格</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- 库存查询 -->
+      <section id="inventory-section" class="section hidden">
+        <!-- 查询表单 -->
+        <div class="card mb-6">
+          <h3 class="text-lg font-medium text-white mb-4">库存查询</h3>
+          <form id="inventory-search-form" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label for="search-category" class="block text-sm font-medium text-gray-400 mb-1">产品种类</label>
+                <select id="search-category" class="select w-full">
+                  <option value="">所有种类</option>
+                </select>
+              </div>
+              <div>
+                <label for="search-spec" class="block text-sm font-medium text-gray-400 mb-1">产品规格</label>
+                <select id="search-spec" class="select w-full">
+                  <option value="">所有规格</option>
+                </select>
+              </div>
+              <div>
+                <label for="search-stock" class="block text-sm font-medium text-gray-400 mb-1">库存状态</label>
+                <select id="search-stock" class="select w-full">
+                <option value="">所有状态</option>
+                <option value="low">库存不足</option>
+                <option value="normal">库存正常</option>
+              </select>
+              </div>
+            </div>
+            
+            <div class="flex justify-end space-x-3">
+              <button type="button" class="btn btn-outline" id="reset-search-form">重置</button>
+              <button type="submit" class="btn btn-primary">查询</button>
+            </div>
+          </form>
+        </div>
+        
+        <!-- 查询结果 -->
+        <div class="card">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-medium text-white">查询结果</h3>
+            <button class="btn btn-outline text-sm py-1.5 px-3" id="export-inventory">
+              <i class="fa fa-download mr-2"></i>导出数据
+            </button>
+          </div>
+          
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-dark-100">
+              <thead class="bg-dark-300">
+                <tr>
+                  <th scope="col" class="table-header">产品种类</th>
+                  <th scope="col" class="table-header">规格 (宽×长)</th>
+                  <th scope="col" class="table-header">库存数量</th>
+                  <th scope="col" class="table-header">库存状态</th>
+                  <th scope="col" class="table-header">最后更新</th>
+                </tr>
+              </thead>
+              <tbody class="bg-dark-300 bg-opacity-50 divide-y divide-dark-100" id="inventory-results">
+                <tr>
+                  <td colspan="5" class="table-cell text-center text-gray-500">请输入查询条件</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <!-- 分页 -->
+          <div class="flex items-center justify-between mt-4">
+            <div class="text-sm text-gray-400">
+              显示 <span id="results-start">0</span> 到 <span id="results-end">0</span> 条，共 <span id="results-total">0</span> 条
+            </div>
+            <div class="flex space-x-2">
+              <button class="btn btn-outline text-sm py-1 px-3" id="prev-page" disabled>上一页</button>
+              <button class="btn btn-outline text-sm py-1 px-3" id="next-page" disabled>下一页</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- 模态框 -->
+  <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-dark-300 rounded-lg shadow-xl max-w-md w-full mx-4">
+      <div class="p-4 border-b border-dark-100 flex justify-between items-center">
+        <h3 class="text-lg font-medium text-white" id="modal-title">提示</h3>
+        <button id="close-modal" class="text-gray-400 hover:text-white">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+      <div class="p-4" id="modal-content">
+        <!-- 模态框内容 -->
+      </div>
+      <div class="p-4 border-t border-dark-100 flex justify-end space-x-3" id="modal-footer">
+        <button class="btn btn-outline" id="modal-cancel">取消</button>
+        <button class="btn btn-primary" id="modal-confirm">确认</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 通知提示 -->
+  <div id="toast" class="fixed top-4 right-4 bg-dark-200 border-l-4 border-primary rounded shadow-lg p-4 transform translate-x-full transition-transform duration-300 z-50 max-w-sm">
+    <div class="flex items-start">
+      <div class="flex-shrink-0 text-primary" id="toast-icon">
+        <i class="fa fa-check-circle"></i>
+      </div>
+      <div class="ml-3 w-0 flex-1">
+        <p class="text-sm font-medium text-white" id="toast-title">成功</p>
+        <p class="mt-1 text-sm text-gray-300" id="toast-message">操作已成功完成</p>
+      </div>
+      <div class="ml-4 flex-shrink-0 flex">
+        <button id="close-toast" class="inline-flex text-gray-400 hover:text-white">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 数据管理类
+    class DataManager {
+      constructor() {
+        this.categories = JSON.parse(localStorage.getItem('productCategories')) || [];
+        this.specs = JSON.parse(localStorage.getItem('productSpecs')) || [];
+        this.activities = JSON.parse(localStorage.getItem('activities')) || [];
+        this.inboundLogs = JSON.parse(localStorage.getItem('inboundLogs')) || [];
+        this.outboundLogs = JSON.parse(localStorage.getItem('outboundLogs')) || [];
+      }
+      
+      // 保存数据到本地存储
+      saveData() {
+        localStorage.setItem('productCategories', JSON.stringify(this.categories));
+        localStorage.setItem('productSpecs', JSON.stringify(this.specs));
+        localStorage.setItem('activities', JSON.stringify(this.activities));
+        localStorage.setItem('inboundLogs', JSON.stringify(this.inboundLogs));
+        localStorage.setItem('outboundLogs', JSON.stringify(this.outboundLogs));
+      }
+      
+      // 初始化示例数据
+      initSampleData() {
+        // 添加示例产品种类
+        const categories = [
+          { id: 'cat1', name: '钢材', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+          { id: 'cat2', name: '铝材', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+          { id: 'cat3', name: '木材', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+          { id: 'cat4', name: '塑料', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
+        ];
+        
+        // 添加示例产品规格
+        const specs = [
+          { id: 'spec1', categoryId: 'cat1', length: 2.5, width: 1.2, quantity: 50, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+          { id: 'spec2', categoryId: 'cat1', length: 3.0, width: 1.5, quantity: 30, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+          { id: 'spec3', categoryId: 'cat2', length: 2.0, width: 1.0, quantity: 40, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+          { id: 'spec4', categoryId: 'cat2', length: 4.0, width: 2.0, quantity: 10, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+          { id: 'spec5', categoryId: 'cat3', length: 3.5, width: 0.8, quantity: 60, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+          { id: 'spec6', categoryId: 'cat4', length: 1.8, width: 0.6, quantity: 20, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
+        ];
+        
+        // 添加示例活动记录
+        const activities = [
+          { id: 'act1', type: 'inbound', categoryId: 'cat1', specId: 'spec1', quantity: 50, timestamp: new Date().toISOString(), user: '管理员' },
+          { id: 'act2', type: 'inbound', categoryId: 'cat2', specId: 'spec3', quantity: 40, timestamp: new Date(Date.now() - 86400000).toISOString(), user: '管理员' },
+          { id: 'act3', type: 'outbound', categoryId: 'cat1', specId: 'spec1', quantity: 10, timestamp: new Date(Date.now() - 172800000).toISOString(), user: '管理员' },
+          { id: 'act4', type: 'inbound', categoryId: 'cat3', specId: 'spec5', quantity: 60, timestamp: new Date(Date.now() - 259200000).toISOString(), user: '管理员' }
+        ];
+        
+        // 添加示例入库记录
+        const inboundLogs = [
+          { id: 'in1', categoryId: 'cat1', specId: 'spec1', length: 2.5, width: 1.2, quantity: 50, timestamp: new Date().toISOString(), user: '管理员' },
+          { id: 'in2', categoryId: 'cat2', specId: 'spec3', length: 2.0, width: 1.0, quantity: 40, timestamp: new Date(Date.now() - 86400000).toISOString(), user: '管理员' },
+          { id: 'in3', categoryId: 'cat3', specId: 'spec5', length: 3.5, width: 0.8, quantity: 60, timestamp: new Date(Date.now() - 259200000).toISOString(), user: '管理员' }
+        ];
+        
+        // 添加示例出库记录
+        const outboundLogs = [
+          { id: 'out1', categoryId: 'cat1', specId: 'spec1', length: 2.5, width: 1.2, quantity: 10, timestamp: new Date(Date.now() - 172800000).toISOString(), user: '管理员' }
+        ];
+        
+        this.categories = categories;
+        this.specs = specs;
+        this.activities = activities;
+        this.inboundLogs = inboundLogs;
+        this.outboundLogs = outboundLogs;
+        
+        this.saveData();
+      }
+      
+      // 添加产品种类
+      addCategory(name) {
+        const id = 'cat' + Date.now();
+        const category = {
+          id,
+          name,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        };
+        
+        this.categories.push(category);
+        this.saveData();
+        return category;
+      }
+      
+      // 更新产品种类
+      updateCategory(id, name) {
+        const index = this.categories.findIndex(c => c.id === id);
+        if (index !== -1) {
+          this.categories[index].name = name;
+          this.categories[index].updatedAt = new Date().toISOString();
+          this.saveData();
+          return this.categories[index];
+        }
+        return null;
+      }
+      
+      // 删除产品种类
+      deleteCategory(id) {
+        // 检查是否有关联的规格
+        const hasSpecs = this.specs.some(s => s.categoryId === id);
+        if (hasSpecs) {
+          return { success: false, message: '该种类下存在产品规格，无法删除' };
+        }
+        
+        const index = this.categories.findIndex(c => c.id === id);
+        if (index !== -1) {
+          this.categories.splice(index, 1);
+          this.saveData();
+          return { success: true };
+        }
+        return { success: false, message: '未找到该种类' };
+      }
+      
+      // 添加产品规格
+      addSpec(categoryId, length, width, quantity = 0) {
+        // 检查是否已存在相同规格
+        const existingSpec = this.specs.find(s => 
+          s.categoryId === categoryId && 
+          s.length === parseFloat(length) && 
+          s.width === parseFloat(width)
+        );
+        
+        if (existingSpec) {
+          return { success: false, message: '该规格已存在' };
+        }
+        
+        const id = 'spec' + Date.now();
+        const spec = {
+          id,
+          categoryId,
+          length: parseFloat(length),
+          width: parseFloat(width),
+          quantity: parseInt(quantity),
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        };
+        
+        this.specs.push(spec);
+        this.saveData();
+        return { success: true, data: spec };
+      }
+      
+      // 更新产品规格
+      updateSpec(id, data) {
+        const index = this.specs.findIndex(s => s.id === id);
+        if (index !== -1) {
+          // 如果更新了长度或宽度，检查是否与其他规格冲突
+          if (data.length !== undefined || data.width !== undefined) {
+            const length = data.length !== undefined ? parseFloat(data.length) : this.specs[index].length;
+            const width = data.width !== undefined ? parseFloat(data.width) : this.specs[index].width;
+            
+            const existingSpec = this.specs.find(s => 
+              s.id !== id &&
+              s.categoryId === this.specs[index].categoryId && 
+              s.length === length && 
+              s.width === width
+            );
+            
+            if (existingSpec) {
+              return { success: false, message: '该规格已存在' };
+            }
+          }
+          
+          // 更新规格信息
+          if (data.length !== undefined) this.specs[index].length = parseFloat(data.length);
+          if (data.width !== undefined) this.specs[index].width = parseFloat(data.width);
+          if (data.quantity !== undefined) this.specs[index].quantity = parseInt(data.quantity);
+          this.specs[index].updatedAt = new Date().toISOString();
+          
+          this.saveData();
+          return { success: true, data: this.specs[index] };
+        }
+        return { success: false, message: '未找到该规格' };
+      }
+      
+      // 删除产品规格
+      deleteSpec(id) {
+        const index = this.specs.findIndex(s => s.id === id);
+        if (index !== -1) {
+          this.specs.splice(index, 1);
+          this.saveData();
+          return { success: true };
+        }
+        return { success: false, message: '未找到该规格' };
+      }
+      
+      // 产品入库
+      inbound(data) {
+        const timestamp = new Date().toISOString();
+        
+        // 使用已有规格入库
+        const spec = this.specs.find(s => s.id === data.specId);
+        if (!spec) {
+          return { success: false, message: '未找到该规格' };
+        }
+        
+        // 更新库存数量
+        spec.quantity += parseInt(data.quantity);
+        spec.updatedAt = timestamp;
+        
+        // 记录入库日志
+        const inboundLog = {
+          id: 'in' + Date.now(),
+          categoryId: spec.categoryId,
+          specId: spec.id,
+          length: spec.length,
+          width: spec.width,
+          quantity: parseInt(data.quantity),
+          timestamp,
+          user: '管理员'
+        };
+        
+        this.inboundLogs.push(inboundLog);
+        
+        // 记录活动
+        const activity = {
+          id: 'act' + Date.now(),
+          type: 'inbound',
+          categoryId: spec.categoryId,
+          specId: spec.id,
+          quantity: parseInt(data.quantity),
+          timestamp,
+          user: '管理员'
+        };
+        
+        this.activities.push(activity);
+        this.saveData();
+        return { success: true };
+      }
+      
+      // 产品出库
+      outbound(specId, outboundLength, quantity) {
+        const spec = this.specs.find(s => s.id === specId);
+        if (!spec) {
+          return { success: false, message: '未找到该规格' };
+        }
+        
+        if (spec.quantity < quantity) {
+          return { success: false, message: '库存不足' };
+        }
+        
+        const timestamp = new Date().toISOString();
+        
+        // 记录出库日志
+        const outboundLog = {
+          id: 'out' + Date.now(),
+          categoryId: spec.categoryId,
+          specId: spec.id,
+          length: outboundLength,
+          width: spec.width,
+          quantity,
+          timestamp,
+          user: '管理员'
+        };
+        
+        this.outboundLogs.push(outboundLog);
+        
+        // 记录活动
+        const activity = {
+          id: 'act' + Date.now(),
+          type: 'outbound',
+          categoryId: spec.categoryId,
+          specId: spec.id,
+          length: outboundLength,
+          width: spec.width,
+          quantity,
+          timestamp,
+          user: '管理员'
+        };
+        
+        this.activities.push(activity);
+        
+        // 如果出库长度等于规格长度，直接减少数量
+        if (Math.abs(spec.length - outboundLength) < 0.001) {
+          spec.quantity -= quantity;
+          spec.updatedAt = timestamp;
+        } else {
+          // 出库长度小于规格长度，需要拆分
+          // 减少一个单位的数量
+          spec.quantity -= 1;
+          spec.updatedAt = timestamp;
+          
+          // 计算剩余长度
+          const remainingLength = spec.length - outboundLength;
+          
+          // 检查是否已经存在相同长度的规格
+          const existingSpec = this.specs.find(s => 
+            s.categoryId === spec.categoryId && 
+            Math.abs(s.length - remainingLength) < 0.001 && 
+            Math.abs(s.width - spec.width) < 0.001
+          );
+          
+          if (existingSpec) {
+            // 如果存在，增加其数量
+            existingSpec.quantity += 1;
+            existingSpec.updatedAt = timestamp;
+          } else {
+            // 如果不存在，创建新规格
+            const newSpec = {
+              id: 'spec' + Date.now(),
+              categoryId: spec.categoryId,
+              length: remainingLength,
+              width: spec.width,
+              quantity: 1,
+              createdAt: timestamp,
+              updatedAt: timestamp
+            };
+            this.specs.push(newSpec);
+          }
+        }
+        
+        this.saveData();
+        return { success: true };
+      }
+      
+      // 获取所有产品种类
+      getCategories() {
+        return this.categories;
+      }
+      
+      // 获取指定种类的所有规格
+      getSpecsByCategory(categoryId) {
+        if (!categoryId) {
+          return this.specs;
+        }
+        return this.specs.filter(s => s.categoryId === categoryId);
+      }
+      
+      // 获取指定规格
+      getSpec(specId) {
+        return this.specs.find(s => s.id === specId);
+      }
+      
+      // 查询库存
+      searchInventory(filters) {
+        let results = [...this.specs];
+        
+        // 按种类筛选
+        if (filters.categoryId) {
+          results = results.filter(s => s.categoryId === filters.categoryId);
+        }
+        
+        // 按规格筛选
+        if (filters.specId) {
+          results = results.filter(s => s.id === filters.specId);
+        }
+        
+        // 按库存状态筛选
+        if (filters.stockStatus) {
+          switch (filters.stockStatus) {
+            case 'low':
+              results = results.filter(s => s.quantity === 0);
+              break;
+            case 'normal':
+              results = results.filter(s => s.quantity > 0);
+              break;
+          }
+        }
+        
+        return results;
+      }
+      
+      // 获取最近活动记录
+      getRecentActivities(limit = 10) {
+        const sortedActivities = this.activities
+          .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        
+        // 如果limit为0，则返回所有活动记录
+        return limit === 0 ? sortedActivities : sortedActivities.slice(0, limit);
+      }
+      
+      // 获取最近入库记录
+      getRecentInboundLogs(limit = 10) {
+        return this.inboundLogs
+          .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+          .slice(0, limit);
+      }
+      
+      // 获取最近出库记录
+      getRecentOutboundLogs(limit = 10) {
+        return this.outboundLogs
+          .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+          .slice(0, limit);
+      }
+      
+      // 获取统计数据
+      getStatistics() {
+        const totalCategories = this.categories.length;
+        const totalSpecs = this.specs.length;
+        const totalInventory = this.specs.reduce((sum, spec) => sum + spec.quantity, 0);
+        const lowStock = this.specs.filter(s => s.quantity === 0).length;
+        
+        // 计算较上月变化（如果数据为空，则显示 0%）
+        let categoriesChange, specsChange, inventoryChange, lowStockChange;
+        
+        if (totalCategories === 0 && totalSpecs === 0 && totalInventory === 0) {
+          // 数据已清除，所有变化重置为 0%
+          categoriesChange = '0%';
+          specsChange = '0%';
+          inventoryChange = '0%';
+          lowStockChange = '0%';
+        } else {
+          // 计算较上月变化（模拟数据）
+          categoriesChange = '+12%';
+          specsChange = '+8%';
+          inventoryChange = '-5%';
+          lowStockChange = '+20%';
+        }
+        
+        return {
+          totalCategories,
+          totalSpecs,
+          totalInventory,
+          lowStock,
+          categoriesChange,
+          specsChange,
+          inventoryChange,
+          lowStockChange
+        };
+      }
+      
+      // 获取库存概览数据（用于饼图/多层圆环图）
+      getInventoryOverviewData(type = 'category') {
+        if (type === 'category') {
+          // 按种类统计
+          const categoryData = {};
+          
+          this.categories.forEach(category => {
+            categoryData[category.id] = {
+              name: category.name,
+              quantity: 0
+            };
+          });
+          
+          this.specs.forEach(spec => {
+            if (categoryData[spec.categoryId]) {
+              categoryData[spec.categoryId].quantity += spec.quantity;
+            }
+          });
+          
+          const labels = Object.values(categoryData).map(c => c.name);
+          const data = Object.values(categoryData).map(c => c.quantity);
+          
+          return { labels, data };
+        } else if (type === 'status') {
+          // 按库存状态统计
+          const lowStock = this.specs.filter(s => s.quantity === 0).length;
+          const normalStock = this.specs.filter(s => s.quantity > 0).length;
+          
+          return {
+            labels: ['库存不足', '库存正常'],
+            data: [lowStock, normalStock]
+          };
+        } else if (type === 'spec') {
+          // 按规格概览 - 多层圆环图，每个圆环代表一个种类
+          const categoriesMap = {};
+          this.categories.forEach(category => {
+            categoriesMap[category.id] = category.name;
+          });
+          
+          // 按种类分组规格
+          const specsByCategory = {};
+          this.categories.forEach(category => {
+            specsByCategory[category.id] = [];
+          });
+          
+          this.specs.forEach(spec => {
+            if (specsByCategory[spec.categoryId]) {
+              specsByCategory[spec.categoryId].push(spec);
+            }
+          });
+          
+          // 为每个种类创建一个数据集
+          const datasets = [];
+          const labels = [];
+          // 扩展颜色数组，提供更多不同的颜色选项
+          const colors = [
+            '#3498db', '#2ecc71', '#f39c12', '#e74c3c', '#9b59b6', '#1abc9c',
+            '#34495e', '#16a085', '#8e44ad', '#d35400', '#c0392b', '#2980b9',
+            '#27ae60', '#f1c40f', '#e67e22', '#95a5a6', '#7f8c8d', '#3498db'
+          ];
+          
+          let i = 0;
+          let colorIndex = 0;
+          for (const categoryId in specsByCategory) {
+            const categorySpecs = specsByCategory[categoryId];
+            if (categorySpecs.length > 0) {
+              // 为该种类的每个规格添加标签
+              const categoryLabels = categorySpecs.map(spec => `${spec.width}×${spec.length}米`);
+              labels.push(...categoryLabels);
+              
+              // 创建该种类的数据集，为每个规格分配不同的颜色
+              const dataset = {
+                label: categoriesMap[categoryId],
+                data: categorySpecs.map(spec => spec.quantity),
+                backgroundColor: categorySpecs.map(() => colors[colorIndex++ % colors.length]),
+                borderWidth: 2,
+                borderColor: '#162032',
+                cutout: `${(i + 1) * 15}%` // 每层圆环的内半径不同，形成多层效果
+              };
+              
+              datasets.push(dataset);
+              i++;
+            }
+          }
+          
+          return { labels, datasets };
+        }
+      }
+      
+      // 获取库存趋势数据（用于折线图）
+      getInventoryTrendData(period = 'month') {
+        // 模拟数据，实际应用中应从历史记录中计算
+        let labels = [];
+        let data = [];
+        
+        if (period === 'week') {
+          labels = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+          data = [120, 132, 101, 134, 90, 230, 210];
+        } else if (period === 'month') {
+          labels = ['第1周', '第2周', '第3周', '第4周'];
+          data = [450, 480, 520, 490];
+        } else {
+          labels = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
+          data = [1200, 1900, 3000, 5000, 4000, 6000, 7000, 8000, 11000, 12000, 13000, 15000];
+        }
+        
+        return { labels, data };
+      }
+      
+      // 导出库存数据
+      exportInventoryData() {
+        const categoriesMap = {};
+        this.categories.forEach(cat => {
+          categoriesMap[cat.id] = cat.name;
+        });
+        
+        const exportData = this.specs.map(spec => {
+          let status = '库存正常';
+          if (spec.quantity === 0) status = '库存不足';
+          
+          return {
+            '产品种类': categoriesMap[spec.categoryId] || '未知',
+            '规格(宽×长)': `${spec.width}×${spec.length}`,
+            '库存数量': spec.quantity,
+            '库存状态': status,
+            '最后更新': new Date(spec.updatedAt).toLocaleString()
+          };
+        });
+        
+        return exportData;
+      }
+      
+      // 备份数据
+      backupData() {
+        const data = {
+          categories: this.categories,
+          specs: this.specs,
+          activities: this.activities,
+          inboundLogs: this.inboundLogs,
+          outboundLogs: this.outboundLogs,
+          timestamp: new Date().toISOString()
+        };
+        
+        return JSON.stringify(data);
+      }
+      
+      // 恢复数据
+      restoreData(jsonData) {
+        try {
+          const data = JSON.parse(jsonData);
+          
+          if (data.categories && data.specs) {
+            this.categories = data.categories;
+            this.specs = data.specs;
+            this.activities = data.activities || [];
+            this.inboundLogs = data.inboundLogs || [];
+            this.outboundLogs = data.outboundLogs || [];
+            
+            this.saveData();
+            return { success: true };
+          } else {
+            return { success: false, message: '无效的数据格式' };
+          }
+        } catch (error) {
+          return { success: false, message: '数据解析失败: ' + error.message };
+        }
+      }
+    }
+
+    // 应用类
+    class WarehouseApp {
+      constructor() {
+        this.dataManager = new DataManager();
+        this.currentSection = 'dashboard';
+        this.currentPage = 1;
+        this.pageSize = 10;
+        this.charts = {};
+        
+        this.init();
+      }
+      
+      // 初始化应用
+      init() {
+        this.initEventListeners();
+        this.loadDashboard();
+        this.updateStatistics();
+        this.initCharts();
+        this.initOutboundMutualValidation();
+        this.initSpecCategoryConditionalDisplay();
+      }
+      
+      // 初始化事件监听器
+      initEventListeners() {
+        // 导航切换
+        document.querySelectorAll('.nav-link').forEach(link => {
+          link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const section = link.getAttribute('data-section');
+            this.switchSection(section);
+          });
+        });
+        
+        // 入库表单
+        document.getElementById('inbound-form').addEventListener('submit', (e) => {
+          e.preventDefault();
+          this.handleInbound();
+        });
+        
+
+        
+        document.getElementById('inbound-category').addEventListener('change', () => {
+          this.updateInboundSpecs();
+        });
+        
+        document.getElementById('reset-inbound-form').addEventListener('click', () => {
+          this.resetInboundForm();
+        });
+        
+        // 出库表单
+        document.getElementById('outbound-form').addEventListener('submit', (e) => {
+          e.preventDefault();
+          this.handleOutbound();
+        });
+        
+        document.getElementById('outbound-category').addEventListener('change', () => {
+          this.updateOutboundSpecs();
+        });
+        
+        document.getElementById('outbound-spec').addEventListener('change', () => {
+          this.updateSpecDetails();
+        });
+        
+        // 产品管理
+        document.getElementById('add-category-btn').addEventListener('click', () => {
+          this.toggleAddCategoryForm();
+        });
+        
+        document.getElementById('save-category-btn').addEventListener('click', () => {
+          this.saveCategory();
+        });
+        
+        document.getElementById('cancel-category-btn').addEventListener('click', () => {
+          this.toggleAddCategoryForm();
+        });
+        
+        document.getElementById('add-spec-btn').addEventListener('click', () => {
+          this.toggleAddSpecForm();
+        });
+        
+        document.getElementById('save-spec-btn').addEventListener('click', () => {
+          this.saveSpec();
+        });
+        
+        document.getElementById('cancel-spec-btn').addEventListener('click', () => {
+          this.toggleAddSpecForm();
+        });
+        
+        document.getElementById('spec-category-filter').addEventListener('change', () => {
+          this.filterSpecsList();
+        });
+        
+        // 库存查询
+        document.getElementById('inventory-search-form').addEventListener('submit', (e) => {
+          e.preventDefault();
+          this.searchInventory();
+        });
+        
+        document.getElementById('search-category').addEventListener('change', () => {
+          this.updateSearchSpecs();
+        });
+        
+        document.getElementById('reset-search-form').addEventListener('click', () => {
+          this.resetSearchForm();
+        });
+        
+        document.getElementById('export-inventory').addEventListener('click', () => {
+          this.exportInventoryData();
+        });
+        
+        document.getElementById('prev-page').addEventListener('click', () => {
+          this.prevPage();
+        });
+        
+        document.getElementById('next-page').addEventListener('click', () => {
+          this.nextPage();
+        });
+        
+        // 图表过滤器
+        document.querySelectorAll('.chart-filter').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const chart = btn.getAttribute('data-chart');
+            const filter = btn.getAttribute('data-filter');
+            this.updateChartFilter(chart, filter, btn);
+          });
+        });
+        
+        document.querySelectorAll('.chart-period').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const chart = btn.getAttribute('data-chart');
+            const period = btn.getAttribute('data-period');
+            this.updateChartPeriod(chart, period, btn);
+          });
+        });
+        
+        // 模态框
+        document.getElementById('close-modal').addEventListener('click', () => {
+          this.hideModal();
+        });
+        
+        document.getElementById('modal-cancel').addEventListener('click', () => {
+          this.hideModal();
+        });
+        
+        document.getElementById('modal-confirm').addEventListener('click', () => {
+          this.handleModalConfirm();
+        });
+        
+        // 通知提示
+        document.getElementById('close-toast').addEventListener('click', () => {
+          this.hideToast();
+        });
+        
+        // 清除数据
+        document.getElementById('clear-data').addEventListener('click', () => {
+          this.showClearDataConfirm();
+        });
+        
+        // 活动日志数量选择器
+        document.getElementById('activity-log-limit').addEventListener('change', (e) => {
+          const value = e.target.value;
+          if (value === 'all') {
+            this.updateActivityLog(true);
+          } else {
+            this.updateActivityLog(false, parseInt(value));
+          }
+        });
+      }
+      
+      // 切换页面部分
+      switchSection(section) {
+        // 更新导航状态
+        document.querySelectorAll('.nav-link').forEach(link => {
+          link.classList.remove('active');
+        });
+        document.querySelector(`.nav-link[data-section="${section}"]`).classList.add('active');
+        
+        // 更新页面标题
+        const titles = {
+          'dashboard': '仪表盘',
+          'inbound': '入库管理',
+          'outbound': '出库管理',
+          'products': '产品管理',
+          'inventory': '库存查询'
+        };
+        
+        const subtitles = {
+          'dashboard': '系统概览',
+          'inbound': '产品入库操作',
+          'outbound': '产品出库操作',
+          'products': '管理产品种类和规格',
+          'inventory': '查询库存状态'
+        };
+        
+        document.getElementById('page-title').textContent = titles[section];
+        document.getElementById('page-subtitle').textContent = subtitles[section];
+        
+        // 隐藏所有部分，显示选中部分
+        document.querySelectorAll('.section').forEach(s => {
+          s.classList.add('hidden');
+        });
+        document.getElementById(`${section}-section`).classList.remove('hidden');
+        
+        this.currentSection = section;
+        
+        // 加载对应部分的数据
+        switch (section) {
+          case 'dashboard':
+            this.loadDashboard();
+            break;
+          case 'inbound':
+            this.loadInbound();
+            break;
+          case 'outbound':
+            this.loadOutbound();
+            break;
+          case 'products':
+            this.loadProducts();
+            break;
+          case 'inventory':
+            this.loadInventory();
+            break;
+        }
+      }
+      
+      // 加载仪表盘
+      loadDashboard() {
+        this.updateStatistics();
+        this.updateActivityLog();
+        this.updateCharts();
+        
+        // 添加统计卡片点击事件
+        this.initStatisticsCardEvents();
+      }
+      
+      // 初始化统计卡片点击事件
+      initStatisticsCardEvents() {
+        // 产品种类卡片点击事件
+        document.getElementById('categories-card').addEventListener('click', () => {
+          this.showAllCategories();
+        });
+        
+        // 产品规格卡片点击事件
+        document.getElementById('specs-card').addEventListener('click', () => {
+          this.showAllSpecs();
+        });
+        
+        // 总库存卡片点击事件
+        document.getElementById('inventory-card').addEventListener('click', () => {
+          this.showAllInventory();
+        });
+        
+        // 库存预警卡片点击事件
+        document.getElementById('low-stock-card').addEventListener('click', () => {
+          this.showLowStockSpecs();
+        });
+      }
+      
+      // 更新统计数据
+      updateStatistics() {
+        const stats = this.dataManager.getStatistics();
+        
+        document.getElementById('total-categories').textContent = stats.totalCategories;
+        document.getElementById('total-specs').textContent = stats.totalSpecs;
+        document.getElementById('total-inventory').textContent = stats.totalInventory;
+        document.getElementById('low-stock').textContent = stats.lowStock;
+      }
+      
+      // 显示所有产品种类
+      showAllCategories() {
+        const categories = this.dataManager.getCategories();
+        
+        let content = '<table class="w-full border-collapse">';
+        content += '<thead><tr class="border-b border-dark-100"><th class="text-left p-2">种类名称</th><th class="text-left p-2">规格数量</th></tr></thead>';
+        content += '<tbody>';
+        
+        categories.forEach(category => {
+          const specCount = this.dataManager.getSpecsByCategory(category.id).length;
+          content += `<tr class="border-b border-dark-100">`;
+          content += `<td class="p-2">${category.name}</td>`;
+          content += `<td class="p-2">${specCount}</td>`;
+          content += `</tr>`;
+        });
+        
+        content += '</tbody></table>';
+        
+        this.showModal('所有产品种类', content, null);
+      }
+      
+      // 显示所有产品规格
+      showAllSpecs() {
+        const specs = this.dataManager.getSpecs();
+        const categoriesMap = {};
+        
+        this.dataManager.getCategories().forEach(category => {
+          categoriesMap[category.id] = category.name;
+        });
+        
+        let content = '<table class="w-full border-collapse">';
+        content += '<thead><tr class="border-b border-dark-100"><th class="text-left p-2">规格</th><th class="text-left p-2">所属种类</th><th class="text-left p-2">库存数量</th></tr></thead>';
+        content += '<tbody>';
+        
+        specs.forEach(spec => {
+          content += `<tr class="border-b border-dark-100">`;
+          content += `<td class="p-2">${spec.width}×${spec.length}米</td>`;
+          content += `<td class="p-2">${categoriesMap[spec.categoryId] || '未知'}</td>`;
+          content += `<td class="p-2">${spec.quantity}</td>`;
+          content += `</tr>`;
+        });
+        
+        content += '</tbody></table>';
+        
+        this.showModal('所有产品规格', content, null);
+      }
+      
+      // 显示所有库存
+      showAllInventory() {
+        const specs = this.dataManager.getSpecs();
+        const categoriesMap = {};
+        
+        this.dataManager.getCategories().forEach(category => {
+          categoriesMap[category.id] = category.name;
+        });
+        
+        let content = '<table class="w-full border-collapse">';
+        content += '<thead><tr class="border-b border-dark-100"><th class="text-left p-2">规格</th><th class="text-left p-2">所属种类</th><th class="text-left p-2">库存数量</th></tr></thead>';
+        content += '<tbody>';
+        
+        // 按库存数量降序排序
+        specs.sort((a, b) => b.quantity - a.quantity);
+        
+        specs.forEach(spec => {
+          content += `<tr class="border-b border-dark-100">`;
+          content += `<td class="p-2">${spec.width}×${spec.length}米</td>`;
+          content += `<td class="p-2">${categoriesMap[spec.categoryId] || '未知'}</td>`;
+          content += `<td class="p-2">${spec.quantity}</td>`;
+          content += `</tr>`;
+        });
+        
+        content += '</tbody></table>';
+        
+        this.showModal('所有库存', content, null);
+      }
+      
+      // 显示无库存的规格
+      showLowStockSpecs() {
+        const specs = this.dataManager.getSpecs();
+        const lowStockSpecs = specs.filter(spec => spec.quantity === 0);
+        const categoriesMap = {};
+        
+        this.dataManager.getCategories().forEach(category => {
+          categoriesMap[category.id] = category.name;
+        });
+        
+        if (lowStockSpecs.length === 0) {
+          this.showToast('提示', '当前没有无库存的规格', 'info');
+          return;
+        }
+        
+        let content = '<table class="w-full border-collapse">';
+        content += '<thead><tr class="border-b border-dark-100"><th class="text-left p-2">规格</th><th class="text-left p-2">所属种类</th><th class="text-left p-2">库存数量</th></tr></thead>';
+        content += '<tbody>';
+        
+        lowStockSpecs.forEach(spec => {
+          content += `<tr class="border-b border-dark-100">`;
+          content += `<td class="p-2">${spec.width}×${spec.length}米</td>`;
+          content += `<td class="p-2">${categoriesMap[spec.categoryId] || '未知'}</td>`;
+          content += `<td class="p-2 text-danger">${spec.quantity}</td>`;
+          content += `</tr>`;
+        });
+        
+        content += '</tbody></table>';
+        
+        this.showModal('无库存规格', content, null);
+      }
+      
+      // 更新活动日志
+      updateActivityLog(viewAll = false, limit = 5) {
+        const activities = viewAll ? this.dataManager.getRecentActivities(0) : this.dataManager.getRecentActivities(limit);
+        const activityLog = document.getElementById('activity-log');
+        
+        if (activities.length === 0) {
+          activityLog.innerHTML = '<tr><td colspan="5" class="table-cell text-center text-gray-500">暂无活动记录</td></tr>';
+          return;
+        }
+        
+        const categories = this.dataManager.getCategories();
+        const categoriesMap = {};
+        categories.forEach(cat => {
+          categoriesMap[cat.id] = cat.name;
+        });
+        
+        let html = '';
+        activities.forEach(activity => {
+          const spec = this.dataManager.getSpec(activity.specId);
+          const categoryName = categoriesMap[activity.categoryId] || '未知';
+          
+          // 优先使用活动记录中的长度和宽度，特别是出库记录
+          let specDimensions;
+          if (activity.length && activity.width) {
+            specDimensions = `${activity.width}×${activity.length}`;
+          } else if (spec) {
+            specDimensions = `${spec.width}×${spec.length}`;
+          } else {
+            specDimensions = '未知';
+          }
+          
+          const type = activity.type === 'inbound' ? '入库' : '出库';
+          const typeClass = activity.type === 'inbound' ? 'text-secondary' : 'text-danger';
+          const timestamp = new Date(activity.timestamp).toLocaleString();
+          
+          html += `
+            <tr>
+              <td class="table-cell">${timestamp}</td>
+              <td class="table-cell"><span class="${typeClass} font-medium">${type}</span></td>
+              <td class="table-cell">${categoryName} (${specDimensions})</td>
+              <td class="table-cell">${activity.quantity}</td>
+              <td class="table-cell"><span class="badge badge-success">完成</span></td>
+            </tr>
+          `;
+        });
+        
+        activityLog.innerHTML = html;
+        
+        // 更新选择器的值
+        const limitSelector = document.getElementById('activity-log-limit');
+        if (limitSelector) {
+          if (viewAll) {
+            limitSelector.value = 'all';
+          } else {
+            limitSelector.value = limit.toString();
+          }
+        }
+      }
+      
+      // 初始化图表
+      initCharts() {
+        // 库存概览饼图/多层圆环图
+        const overviewCtx = document.getElementById('inventory-overview-chart').getContext('2d');
+        const overviewData = this.dataManager.getInventoryOverviewData('category');
+        
+        // 准备图表数据
+        let chartData;
+        if (overviewData.datasets) {
+          // 多层圆环图数据格式
+          chartData = {
+            labels: overviewData.labels,
+            datasets: overviewData.datasets
+          };
+        } else {
+          // 普通饼图数据格式
+          chartData = {
+            labels: overviewData.labels,
+            datasets: [{
+              data: overviewData.data,
+              backgroundColor: [
+                '#3498db',
+                '#2ecc71',
+                '#f39c12',
+                '#e74c3c',
+                '#9b59b6',
+                '#1abc9c'
+              ],
+              borderWidth: 2,
+              borderColor: '#162032',
+              cutout: '60%'
+            }]
+          };
+        }
+        
+        this.charts['inventory-overview'] = new Chart(overviewCtx, {
+          type: 'doughnut',
+          data: chartData,
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'right',
+                labels: {
+                  color: '#e2e8f0',
+                  padding: 15,
+                  font: {
+                    size: 12
+                  }
+                }
+              },
+              tooltip: {
+                backgroundColor: 'rgba(22, 32, 50, 0.9)',
+                titleColor: '#ffffff',
+                bodyColor: '#e2e8f0',
+                borderColor: '#3498db',
+                borderWidth: 1,
+                padding: 10,
+                displayColors: true,
+                callbacks: {
+                  label: function(context) {
+                    const label = context.label || '';
+                    const value = context.raw || 0;
+                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                    const percentage = Math.round((value / total) * 100);
+                    return `${label}: ${value} (${percentage}%)`;
+                  }
+                }
+              }
+            }
+          }
+        });
+        
+        // 库存趋势折线图
+        const trendCtx = document.getElementById('inventory-trend-chart').getContext('2d');
+        const trendData = this.dataManager.getInventoryTrendData('month');
+        
+        this.charts['inventory-trend'] = new Chart(trendCtx, {
+          type: 'line',
+          data: {
+            labels: trendData.labels,
+            datasets: [{
+              label: '总库存',
+              data: trendData.data,
+              borderColor: '#3498db',
+              backgroundColor: 'rgba(52, 152, 219, 0.1)',
+              borderWidth: 2,
+              pointBackgroundColor: '#ffffff',
+              pointBorderColor: '#3498db',
+              pointRadius: 4,
+              pointHoverRadius: 6,
+              tension: 0.4,
+              fill: true
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                display: false
+              },
+              tooltip: {
+                backgroundColor: 'rgba(22, 32, 50, 0.9)',
+                titleColor: '#ffffff',
+                bodyColor: '#e2e8f0',
+                borderColor: '#3498db',
+                borderWidth: 1,
+                padding: 10
+              }
+            },
+            scales: {
+              x: {
+                grid: {
+                  color: 'rgba(75, 85, 99, 0.2)'
+                },
+                ticks: {
+                  color: '#94a3b8'
+                }
+              },
+              y: {
+                grid: {
+                  color: 'rgba(75, 85, 99, 0.2)'
+                },
+                ticks: {
+                  color: '#94a3b8',
+                  beginAtZero: true
+                }
+              }
+            }
+          }
+        });
+      }
+      
+      // 更新图表
+      updateCharts() {
+        if (this.charts['inventory-overview']) {
+          const overviewData = this.dataManager.getInventoryOverviewData('category');
+          this.charts['inventory-overview'].data.labels = overviewData.labels;
+          
+          if (overviewData.datasets) {
+            // 多层圆环图数据格式，替换所有数据集
+            this.charts['inventory-overview'].data.datasets = overviewData.datasets;
+          } else {
+            // 普通饼图数据格式，只更新第一个数据集
+            this.charts['inventory-overview'].data.datasets = [{
+              data: overviewData.data,
+              backgroundColor: [
+                '#3498db',
+                '#2ecc71',
+                '#f39c12',
+                '#e74c3c',
+                '#9b59b6',
+                '#1abc9c'
+              ],
+              borderWidth: 2,
+              borderColor: '#162032',
+              cutout: '60%'
+            }];
+          }
+          
+          this.charts['inventory-overview'].update();
+        }
+        
+        if (this.charts['inventory-trend']) {
+          const trendData = this.dataManager.getInventoryTrendData('month');
+          this.charts['inventory-trend'].data.labels = trendData.labels;
+          this.charts['inventory-trend'].data.datasets[0].data = trendData.data;
+          this.charts['inventory-trend'].update();
+        }
+      }
+      
+      // 更新图表过滤器
+      updateChartFilter(chart, filter, button) {
+        // 更新按钮状态
+        document.querySelectorAll(`.chart-filter[data-chart="${chart}"]`).forEach(btn => {
+          btn.classList.remove('active', 'bg-primary', 'text-white');
+          btn.classList.add('btn-outline');
+        });
+        
+        button.classList.remove('btn-outline');
+        button.classList.add('active', 'bg-primary', 'text-white');
+        
+        // 更新图表数据
+        if (chart === 'inventory-overview') {
+          const overviewData = this.dataManager.getInventoryOverviewData(filter);
+          this.charts[chart].data.labels = overviewData.labels;
+          
+          if (overviewData.datasets) {
+            // 多层圆环图数据格式，替换所有数据集
+            this.charts[chart].data.datasets = overviewData.datasets;
+          } else {
+            // 普通饼图数据格式，只更新第一个数据集
+            this.charts[chart].data.datasets = [{
+              data: overviewData.data,
+              backgroundColor: [
+                '#3498db',
+                '#2ecc71',
+                '#f39c12',
+                '#e74c3c',
+                '#9b59b6',
+                '#1abc9c'
+              ],
+              borderWidth: 2,
+              borderColor: '#162032',
+              cutout: '60%'
+            }];
+          }
+          
+          this.charts[chart].update();
+        }
+      }
+      
+      // 更新图表周期
+      updateChartPeriod(chart, period, button) {
+        // 更新按钮状态
+        document.querySelectorAll(`.chart-period[data-chart="${chart}"]`).forEach(btn => {
+          btn.classList.remove('active', 'bg-primary', 'text-white');
+          btn.classList.add('btn-outline');
+        });
+        
+        button.classList.remove('btn-outline');
+        button.classList.add('active', 'bg-primary', 'text-white');
+        
+        // 更新图表数据
+        if (chart === 'inventory-trend') {
+          const trendData = this.dataManager.getInventoryTrendData(period);
+          this.charts[chart].data.labels = trendData.labels;
+          this.charts[chart].data.datasets[0].data = trendData.data;
+          this.charts[chart].update();
+        }
+      }
+      
+      // 加载入库管理
+      loadInbound() {
+        this.populateCategories('inbound-category');
+        this.resetInboundForm();
+        this.updateInboundLogs();
+        this.initInboundFieldInteraction();
+      }
+      
+      // 填充种类下拉框
+      populateCategories(selectId) {
+        const categories = this.dataManager.getCategories();
+        const select = document.getElementById(selectId);
+        
+        // 保留默认选项
+        const defaultOption = select.options[0];
+        select.innerHTML = '';
+        select.appendChild(defaultOption);
+        
+        categories.forEach(category => {
+          const option = document.createElement('option');
+          option.value = category.id;
+          option.textContent = category.name;
+          select.appendChild(option);
+        });
+      }
+      
+
+      
+      // 初始化入库表单字段联动
+      initInboundFieldInteraction() {
+        const categorySelect = document.getElementById('inbound-category');
+        const specQuantityContainer = document.getElementById('spec-quantity-container');
+        const specSelect = document.getElementById('inbound-spec');
+        const quantityInput = document.getElementById('inbound-quantity');
+        
+        // 产品种类变化时的联动
+        categorySelect.addEventListener('change', () => {
+          if (categorySelect.value) {
+            specQuantityContainer.classList.remove('hidden');
+            specSelect.removeAttribute('disabled');
+            this.updateInboundSpecs();
+            this.updateInboundGuide('选择产品规格并输入入库数量');
+          } else {
+            specQuantityContainer.classList.add('hidden');
+            specSelect.setAttribute('disabled', 'disabled');
+            specSelect.innerHTML = '<option value="">请先选择产品种类</option>';
+            quantityInput.setAttribute('disabled', 'disabled');
+            this.updateInboundGuide('请先选择产品种类');
+          }
+        });
+        
+        // 产品规格变化时的联动
+        specSelect.addEventListener('change', () => {
+          if (specSelect.value) {
+            quantityInput.removeAttribute('disabled');
+            quantityInput.focus();
+            this.updateInboundGuide('输入入库数量');
+          } else {
+            quantityInput.setAttribute('disabled', 'disabled');
+            this.updateInboundGuide('选择产品规格');
+          }
+        });
+      }
+      
+      // 更新入库规格下拉框
+      updateInboundSpecs() {
+        const categoryId = document.getElementById('inbound-category').value;
+        const specs = this.dataManager.getSpecsByCategory(categoryId);
+        const select = document.getElementById('inbound-spec');
+        
+        select.innerHTML = '';
+        
+        // 先添加一个空选项，让用户必须显式选择
+        const emptyOption = document.createElement('option');
+        emptyOption.value = '';
+        emptyOption.textContent = '请选择产品规格';
+        select.appendChild(emptyOption);
+        
+        if (specs.length === 0) {
+          // 如果没有规格，空选项会提示用户
+          return;
+        }
+        
+        specs.forEach(spec => {
+          const option = document.createElement('option');
+          option.value = spec.id;
+          option.textContent = `${spec.width}×${spec.length}米 (库存: ${spec.quantity})`;
+          select.appendChild(option);
+        });
+      }
+      
+      // 更新入库操作指引
+      updateInboundGuide(message) {
+        const guideElement = document.getElementById('inbound-guide');
+        guideElement.innerHTML = `<i class="fa fa-info-circle mr-2"></i>${message}`;
+      }
+      
+      // 重置入库表单
+      resetInboundForm() {
+        const form = document.getElementById('inbound-form');
+        const categorySelect = document.getElementById('inbound-category');
+        const specQuantityContainer = document.getElementById('spec-quantity-container');
+        const specSelect = document.getElementById('inbound-spec');
+        const quantityInput = document.getElementById('inbound-quantity');
+        
+        form.reset();
+        
+        // 重置字段状态
+        specQuantityContainer.classList.add('hidden');
+        specSelect.disabled = true;
+        specSelect.innerHTML = '<option value="">请先选择产品种类</option>';
+        quantityInput.disabled = true;
+        
+        // 重置操作指引
+        this.updateInboundGuide('请先选择产品种类，然后选择产品规格，最后输入入库数量');
+      }
+      
+      // 准备下一次入库（连续入库功能）
+      prepareForNextInbound() {
+        const categorySelect = document.getElementById('inbound-category');
+        const categoryValue = categorySelect.value;
+        const specQuantityContainer = document.getElementById('spec-quantity-container');
+        const specSelect = document.getElementById('inbound-spec');
+        const quantityInput = document.getElementById('inbound-quantity');
+        
+        // 保存当前选择的规格ID
+        const selectedSpecId = specSelect.value;
+        
+        // 重置数量输入为默认值1
+        quantityInput.value = 1;
+        quantityInput.disabled = false;
+        
+        if (categoryValue) {
+          specQuantityContainer.classList.remove('hidden');
+          this.updateInboundSpecs();
+          
+          // 恢复之前选择的规格
+          if (selectedSpecId) {
+            specSelect.value = selectedSpecId;
+          }
+          
+          specSelect.disabled = false;
+          quantityInput.focus();
+          this.updateInboundGuide('已保持当前规格，请直接输入入库数量进行连续入库');
+        } else {
+          specQuantityContainer.classList.add('hidden');
+          specSelect.disabled = true;
+          quantityInput.disabled = true;
+          this.updateInboundGuide('请选择下一个产品种类');
+          categorySelect.focus();
+        }
+      }
+      
+      // 处理入库
+      handleInbound() {
+        const categoryId = document.getElementById('inbound-category').value;
+        const specId = document.getElementById('inbound-spec').value;
+        const quantity = parseInt(document.getElementById('inbound-quantity').value);
+        
+        if (!categoryId) {
+          this.showToast('错误', '请选择产品种类', 'error');
+          return;
+        }
+        
+        if (!specId) {
+          this.showToast('错误', '请选择产品规格', 'error');
+          return;
+        }
+        
+        if (!quantity || quantity <= 0) {
+          this.showToast('错误', '请输入有效的入库数量', 'error');
+          return;
+        }
+        
+        const data = { categoryId, specId, quantity };
+        
+        const result = this.dataManager.inbound(data);
+        
+        if (result.success) {
+          this.showToast('成功', '产品入库成功', 'success');
+          this.prepareForNextInbound();
+          this.updateInboundLogs();
+          this.updateStatistics();
+          this.updateCharts();
+        } else {
+          this.showToast('错误', result.message, 'error');
+        }
+      }
+      
+      // 显示删除确认对话框
+      showDeleteConfirm(specId) {
+        if (confirm('确定要删除该产品规格吗？此操作将永久删除该规格及其所有库存记录，不可撤销。')) {
+          const result = this.dataManager.deleteSpec(specId);
+          if (result.success) {
+            this.showToast('成功', '产品规格删除成功', 'success');
+            this.prepareForNextInbound();
+            this.updateInboundLogs();
+            this.updateStatistics();
+            this.updateCharts();
+          } else {
+            this.showToast('错误', result.message, 'error');
+          }
+        } else {
+          this.showToast('提示', '删除操作已取消', 'info');
+        }
+      }
+      
+      // 更新入库日志
+      updateInboundLogs() {
+        const logs = this.dataManager.getRecentInboundLogs(5);
+        const inboundLog = document.getElementById('inbound-log');
+        
+        if (logs.length === 0) {
+          inboundLog.innerHTML = '<tr><td colspan="5" class="table-cell text-center text-gray-500">暂无入库记录</td></tr>';
+          return;
+        }
+        
+        const categories = this.dataManager.getCategories();
+        const categoriesMap = {};
+        categories.forEach(cat => {
+          categoriesMap[cat.id] = cat.name;
+        });
+        
+        let html = '';
+        logs.forEach(log => {
+          const categoryName = categoriesMap[log.categoryId] || '未知';
+          const timestamp = new Date(log.timestamp).toLocaleString();
+          
+          html += `
+            <tr>
+              <td class="table-cell">${timestamp}</td>
+              <td class="table-cell">${categoryName}</td>
+              <td class="table-cell">${log.width}×${log.length}米</td>
+              <td class="table-cell">${log.quantity}</td>
+              <td class="table-cell">${log.user}</td>
+            </tr>
+          `;
+        });
+        
+        inboundLog.innerHTML = html;
+      }
+      
+      // 加载出库管理
+      loadOutbound() {
+        this.populateCategories('outbound-category');
+        
+        // 重置出库表单
+        document.getElementById('outbound-form').reset();
+        document.getElementById('spec-details').classList.add('hidden');
+        document.getElementById('outbound-spec').innerHTML = '<option value="">请先选择产品种类</option>';
+        
+        this.updateOutboundLogs();
+      }
+      
+      // 更新出库规格下拉框
+      updateOutboundSpecs() {
+        const categoryId = document.getElementById('outbound-category').value;
+        const specs = this.dataManager.getSpecsByCategory(categoryId);
+        const select = document.getElementById('outbound-spec');
+        
+        select.innerHTML = '';
+        
+        if (specs.length === 0) {
+          const option = document.createElement('option');
+          option.value = '';
+          option.textContent = '该种类下暂无规格';
+          select.appendChild(option);
+          document.getElementById('spec-details').classList.add('hidden');
+          return;
+        }
+        
+        specs.forEach(spec => {
+          const option = document.createElement('option');
+          option.value = spec.id;
+          option.textContent = `${spec.width}×${spec.length}米 (库存: ${spec.quantity})`;
+          select.appendChild(option);
+        });
+        
+        // 如果有规格，默认选择第一个并更新详情
+        if (specs.length > 0) {
+          select.value = specs[0].id;
+          this.updateSpecDetails();
+        } else {
+          document.getElementById('spec-details').classList.add('hidden');
+        }
+      }
+      
+      // 更新规格详情
+      updateSpecDetails() {
+        const specId = document.getElementById('outbound-spec').value;
+        
+        if (!specId) {
+          document.getElementById('spec-details').classList.add('hidden');
+          return;
+        }
+        
+        const spec = this.dataManager.getSpec(specId);
+        
+        if (spec) {
+          document.getElementById('current-stock').textContent = spec.quantity;
+          document.getElementById('spec-dimensions').textContent = `${spec.width}×${spec.length}米`;
+          
+          const stockStatus = document.getElementById('stock-status');
+          if (spec.quantity === 0) {
+            stockStatus.textContent = '库存不足';
+            stockStatus.className = 'badge badge-danger';
+          } else {
+            stockStatus.textContent = '库存正常';
+            stockStatus.className = 'badge badge-secondary';
+          }
+          
+          document.getElementById('spec-details').classList.remove('hidden');
+        }
+      }
+      
+      // 初始化出库表单的互斥输入验证
+      initOutboundMutualValidation() {
+        const lengthInput = document.getElementById('outbound-length');
+        const quantityInput = document.getElementById('outbound-quantity');
+        
+        // 当输入出库长度时，清空出库数量
+        lengthInput.addEventListener('input', () => {
+          if (lengthInput.value) {
+            quantityInput.value = '';
+          }
+        });
+        
+        // 当输入出库数量时，清空出库长度
+        quantityInput.addEventListener('input', () => {
+          if (quantityInput.value) {
+            lengthInput.value = '';
+          }
+        });
+      }
+      
+      // 处理出库
+      handleOutbound() {
+        const specId = document.getElementById('outbound-spec').value;
+        const outboundLength = parseFloat(document.getElementById('outbound-length').value);
+        const quantity = parseInt(document.getElementById('outbound-quantity').value);
+        
+        if (!specId) {
+          this.showToast('错误', '请选择产品规格', 'error');
+          return;
+        }
+        
+        // 验证：只能填写出库长度或出库数量中的一个，不能同时填写
+        let isLengthValid = outboundLength && outboundLength > 0;
+        let isQuantityValid = quantity && quantity > 0;
+        
+        if ((isLengthValid && isQuantityValid) || (!isLengthValid && !isQuantityValid)) {
+          this.showToast('错误', '请只填写出库长度或出库数量中的一个，不能同时填写或都不填写', 'error');
+          return;
+        }
+        
+        const spec = this.dataManager.getSpec(specId);
+        
+        if (!spec) {
+          this.showToast('错误', '未找到该规格', 'error');
+          return;
+        }
+        
+        // 如果填写了出库长度
+        if (isLengthValid) {
+          if (spec.length < outboundLength) {
+            this.showToast('错误', '出库长度不能大于库存规格长度', 'error');
+            return;
+          }
+          // 使用1作为数量参数，因为长度拆分时只处理一个单位
+          const result = this.dataManager.outbound(specId, outboundLength, 1);
+          
+          if (result.success) {
+            this.showToast('成功', '产品出库成功', 'success');
+            this.updateOutboundSpecs();
+            this.updateOutboundLogs();
+            this.updateStatistics();
+            this.updateCharts();
+          } else {
+            this.showToast('错误', result.message, 'error');
+          }
+        } 
+        // 如果填写了出库数量
+        else if (isQuantityValid) {
+          if (spec.quantity < quantity) {
+            this.showToast('错误', '库存不足', 'error');
+            return;
+          }
+          // 使用完整规格长度作为参数
+          const result = this.dataManager.outbound(specId, spec.length, quantity);
+          
+          if (result.success) {
+            this.showToast('成功', '产品出库成功', 'success');
+            this.updateOutboundSpecs();
+            this.updateOutboundLogs();
+            this.updateStatistics();
+            this.updateCharts();
+          } else {
+            this.showToast('错误', result.message, 'error');
+          }
+        }
+      }
+      
+      // 显示删除规格确认
+      showDeleteSpecConfirm(id) {
+        let specId;
+        
+        // 如果没有提供id，则从出库表单中获取
+        if (id === undefined) {
+          specId = document.getElementById('outbound-spec').value;
+        } else {
+          specId = id;
+        }
+        
+        if (!specId) {
+          this.showToast('错误', '请选择要删除的规格', 'error');
+          return;
+        }
+        
+        const spec = this.dataManager.getSpec(specId);
+        
+        if (!spec) {
+          this.showToast('错误', '未找到该规格', 'error');
+          return;
+        }
+        
+        this.showModal(
+          '确认删除',
+          `确定要删除规格 ${spec.width}×${spec.length} 米吗？此操作不可撤销。`,
+          () => {
+            const result = this.dataManager.deleteSpec(specId);
+            
+            if (result.success) {
+              this.showToast('成功', '规格删除成功', 'success');
+              this.updateOutboundSpecs();
+              this.updateStatistics();
+              this.updateCharts();
+            } else {
+              this.showToast('错误', result.message, 'error');
+            }
+            
+            this.hideModal();
+          }
+        );
+      }
+      
+
+      
+      // 更新出库日志
+      updateOutboundLogs() {
+        const logs = this.dataManager.getRecentOutboundLogs(5);
+        const outboundLog = document.getElementById('outbound-log');
+        
+        if (logs.length === 0) {
+          outboundLog.innerHTML = '<tr><td colspan="5" class="table-cell text-center text-gray-500">暂无出库记录</td></tr>';
+          return;
+        }
+        
+        const categories = this.dataManager.getCategories();
+        const categoriesMap = {};
+        categories.forEach(cat => {
+          categoriesMap[cat.id] = cat.name;
+        });
+        
+        let html = '';
+        logs.forEach(log => {
+          const categoryName = categoriesMap[log.categoryId] || '未知';
+          const timestamp = new Date(log.timestamp).toLocaleString();
+          
+          html += `
+            <tr>
+              <td class="table-cell">${timestamp}</td>
+              <td class="table-cell">${categoryName}</td>
+              <td class="table-cell">${log.width}×${log.length}米</td>
+              <td class="table-cell">${log.quantity}</td>
+              <td class="table-cell">${log.user}</td>
+            </tr>
+          `;
+        });
+        
+        outboundLog.innerHTML = html;
+      }
+      
+      // 加载产品管理
+      loadProducts() {
+        this.populateCategories('spec-category');
+        this.populateCategories('spec-category-filter');
+        this.updateCategoriesList();
+        this.updateSpecsList();
+      }
+      
+      // 切换添加种类表单
+      toggleAddCategoryForm() {
+        const form = document.getElementById('add-category-form');
+        form.classList.toggle('hidden');
+        
+        if (!form.classList.contains('hidden')) {
+          document.getElementById('category-name').focus();
+        } else {
+          document.getElementById('category-name').value = '';
+        }
+      }
+      
+      // 保存种类
+      saveCategory() {
+        const name = document.getElementById('category-name').value.trim();
+        
+        if (!name) {
+          this.showToast('错误', '请输入种类名称', 'error');
+          return;
+        }
+        
+        const category = this.dataManager.addCategory(name);
+        
+        if (category) {
+          this.showToast('成功', '种类添加成功', 'success');
+          this.toggleAddCategoryForm();
+          this.populateCategories('spec-category');
+          this.populateCategories('spec-category-filter');
+          this.updateCategoriesList();
+          this.updateStatistics();
+        }
+      }
+      
+      // 更新种类列表
+      updateCategoriesList() {
+        const categories = this.dataManager.getCategories();
+        const categoriesList = document.getElementById('categories-list');
+        
+        if (categories.length === 0) {
+          categoriesList.innerHTML = '<tr><td colspan="5" class="table-cell text-center text-gray-500">暂无产品种类</td></tr>';
+          return;
+        }
+        
+        let html = '';
+        categories.forEach(category => {
+          const specsCount = this.dataManager.getSpecsByCategory(category.id).length;
+          const createdAt = new Date(category.createdAt).toLocaleString();
+          
+          html += `
+            <tr>
+              <td class="table-cell">${category.id}</td>
+              <td class="table-cell">${category.name}</td>
+              <td class="table-cell">${specsCount}</td>
+              <td class="table-cell">${createdAt}</td>
+              <td class="table-cell">
+                <button class="text-primary hover:text-primary/80 mr-3 edit-category" data-id="${category.id}">
+                  <i class="fa fa-pencil"></i>
+                </button>
+                <button class="text-danger hover:text-danger/80 delete-category" data-id="${category.id}">
+                  <i class="fa fa-trash"></i>
+                </button>
+              </td>
+            </tr>
+          `;
+        });
+        
+        categoriesList.innerHTML = html;
+        
+        // 添加编辑和删除事件
+        document.querySelectorAll('.edit-category').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const id = btn.getAttribute('data-id');
+            this.editCategory(id);
+          });
+        });
+        
+        document.querySelectorAll('.delete-category').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const id = btn.getAttribute('data-id');
+            this.showDeleteCategoryConfirm(id);
+          });
+        });
+      }
+      
+      // 编辑种类
+      editCategory(id) {
+        const category = this.dataManager.getCategories().find(c => c.id === id);
+        
+        if (!category) {
+          this.showToast('错误', '未找到该种类', 'error');
+          return;
+        }
+        
+        document.getElementById('category-name').value = category.name;
+        document.getElementById('add-category-form').classList.remove('hidden');
+        
+        // 更改保存按钮行为
+        const saveBtn = document.getElementById('save-category-btn');
+        saveBtn.textContent = '更新';
+        saveBtn.onclick = () => {
+          const name = document.getElementById('category-name').value.trim();
+          
+          if (!name) {
+            this.showToast('错误', '请输入种类名称', 'error');
+            return;
+          }
+          
+          const updatedCategory = this.dataManager.updateCategory(id, name);
+          
+          if (updatedCategory) {
+            this.showToast('成功', '种类更新成功', 'success');
+            this.toggleAddCategoryForm();
+            this.populateCategories('spec-category');
+            this.populateCategories('spec-category-filter');
+            this.updateCategoriesList();
+            
+            // 恢复保存按钮行为
+            saveBtn.textContent = '保存';
+            saveBtn.onclick = () => {
+              this.saveCategory();
+            };
+          }
+        };
+      }
+      
+      // 显示删除种类确认
+      showDeleteCategoryConfirm(id) {
+        const category = this.dataManager.getCategories().find(c => c.id === id);
+        
+        if (!category) {
+          this.showToast('错误', '未找到该种类', 'error');
+          return;
+        }
+        
+        this.showModal(
+          '确认删除',
+          `确定要删除种类 "${category.name}" 吗？如果该种类下有产品规格，将无法删除。`,
+          () => {
+            const result = this.dataManager.deleteCategory(id);
+            
+            if (result.success) {
+              this.showToast('成功', '种类删除成功', 'success');
+              this.updateCategoriesList();
+              this.populateCategories('spec-category');
+              this.populateCategories('spec-category-filter');
+              this.updateStatistics();
+            } else {
+              this.showToast('错误', result.message, 'error');
+            }
+            
+            this.hideModal();
+          }
+        );
+      }
+      
+      // 切换添加规格表单
+      toggleAddSpecForm() {
+        const form = document.getElementById('add-spec-form');
+        const saveBtn = document.getElementById('save-spec-btn');
+        const specCategory = document.getElementById('spec-category');
+        const lengthContainer = document.getElementById('spec-length-container');
+        const widthContainer = document.getElementById('spec-width-container');
+        
+        form.classList.toggle('hidden');
+        
+        if (!form.classList.contains('hidden')) {
+          // 表单显示时，根据是否选择了产品种类来禁用/启用保存按钮和显示/隐藏输入框
+          if (!specCategory.value) {
+            saveBtn.disabled = true;
+            saveBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            lengthContainer.classList.add('hidden');
+            widthContainer.classList.add('hidden');
+          } else {
+            saveBtn.disabled = false;
+            saveBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            lengthContainer.classList.remove('hidden');
+            widthContainer.classList.remove('hidden');
+          }
+          
+          // 添加产品种类选择变化的监听
+          const handleCategoryChange = () => {
+            if (!specCategory.value) {
+              saveBtn.disabled = true;
+              saveBtn.classList.add('opacity-50', 'cursor-not-allowed');
+              lengthContainer.classList.add('hidden');
+              widthContainer.classList.add('hidden');
+            } else {
+              saveBtn.disabled = false;
+              saveBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+              lengthContainer.classList.remove('hidden');
+              widthContainer.classList.remove('hidden');
+            }
+          };
+          
+          specCategory.addEventListener('change', handleCategoryChange);
+          
+          if (specCategory.value) {
+            document.getElementById('spec-length').focus();
+          } else {
+            specCategory.focus();
+          }
+        } else {
+          document.getElementById('add-spec-form').reset();
+          // 表单隐藏时，恢复保存按钮状态和隐藏输入框
+          saveBtn.disabled = false;
+          saveBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+          lengthContainer.classList.add('hidden');
+          widthContainer.classList.add('hidden');
+        }
+      }
+      
+      // 保存规格
+      // 初始化产品种类选择的条件显示逻辑
+      initSpecCategoryConditionalDisplay() {
+        const categorySelect = document.getElementById('spec-category');
+        const lengthContainer = document.getElementById('spec-length-container');
+        const widthContainer = document.getElementById('spec-width-container');
+        
+        // 当产品种类选择变化时，显示或隐藏长度和宽度输入框
+        categorySelect.addEventListener('change', () => {
+          if (categorySelect.value) {
+            lengthContainer.classList.remove('hidden');
+            widthContainer.classList.remove('hidden');
+          } else {
+            lengthContainer.classList.add('hidden');
+            widthContainer.classList.add('hidden');
+          }
+        });
+      }
+      
+      saveSpec() {
+        const categoryId = document.getElementById('spec-category').value;
+        const length = parseFloat(document.getElementById('spec-length').value);
+        const width = parseFloat(document.getElementById('spec-width').value);
+        const quantity = 0; // 数量字段默认值为0
+        
+        if (!categoryId) {
+          this.showToast('错误', '请选择产品种类', 'error');
+          return;
+        }
+        
+        if (!length || !width || length <= 0 || width <= 0) {
+          this.showToast('错误', '请输入有效的长度和宽度', 'error');
+          return;
+        }
+        
+        const result = this.dataManager.addSpec(categoryId, length, width, quantity);
+        
+        if (result.success) {
+          this.showToast('成功', '规格添加成功', 'success');
+          this.toggleAddSpecForm();
+          this.updateSpecsList();
+          this.updateStatistics();
+          this.updateCharts();
+        } else {
+          this.showToast('错误', result.message, 'error');
+        }
+      }
+      
+      // 更新规格列表
+      updateSpecsList() {
+        const categoryId = document.getElementById('spec-category-filter').value;
+        const specs = this.dataManager.getSpecsByCategory(categoryId);
+        const specsList = document.getElementById('specs-list');
+        
+        if (specs.length === 0) {
+          specsList.innerHTML = '<tr><td colspan="6" class="table-cell text-center text-gray-500">暂无产品规格</td></tr>';
+          return;
+        }
+        
+        const categories = this.dataManager.getCategories();
+        const categoriesMap = {};
+        categories.forEach(cat => {
+          categoriesMap[cat.id] = cat.name;
+        });
+        
+        let html = '';
+        specs.forEach(spec => {
+          const categoryName = categoriesMap[spec.categoryId] || '未知';
+          const createdAt = new Date(spec.createdAt).toLocaleString();
+          
+          html += `
+            <tr>
+              <td class="table-cell">${spec.id}</td>
+              <td class="table-cell">${categoryName}</td>
+              <td class="table-cell">${spec.length}×${spec.width}米</td>
+              <td class="table-cell">${spec.quantity}</td>
+              <td class="table-cell">${createdAt}</td>
+              <td class="table-cell">
+                <button class="text-primary hover:text-primary/80 mr-3 edit-spec" data-id="${spec.id}">
+                  <i class="fa fa-pencil"></i>
+                </button>
+                <button class="text-danger hover:text-danger/80 delete-spec" data-id="${spec.id}">
+                  <i class="fa fa-trash"></i>
+                </button>
+              </td>
+            </tr>
+          `;
+        });
+        
+        specsList.innerHTML = html;
+        
+        // 添加编辑和删除事件
+        document.querySelectorAll('.edit-spec').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const id = btn.getAttribute('data-id');
+            this.editSpec(id);
+          });
+        });
+        
+        document.querySelectorAll('.delete-spec').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const id = btn.getAttribute('data-id');
+            this.showDeleteSpecConfirm(id);
+          });
+        });
+      }
+      
+      // 编辑规格
+      editSpec(id) {
+        const spec = this.dataManager.getSpec(id);
+        const saveBtn = document.getElementById('save-spec-btn');
+        const specCategory = document.getElementById('spec-category');
+        const lengthContainer = document.getElementById('spec-length-container');
+        const widthContainer = document.getElementById('spec-width-container');
+        
+        if (!spec) {
+          this.showToast('错误', '未找到该规格', 'error');
+          return;
+        }
+        
+        // 填充表单数据
+        document.getElementById('spec-category').value = spec.categoryId;
+        document.getElementById('spec-length').value = spec.length;
+        document.getElementById('spec-width').value = spec.width;
+        document.getElementById('add-spec-form').classList.remove('hidden');
+        
+        // 编辑时始终显示长度和宽度输入框
+        lengthContainer.classList.remove('hidden');
+        widthContainer.classList.remove('hidden');
+        
+        // 启用保存按钮（因为编辑时已经选择了产品种类）
+        saveBtn.disabled = false;
+        saveBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        
+        // 添加产品种类选择变化的监听
+        const handleCategoryChange = () => {
+          if (!specCategory.value) {
+            saveBtn.disabled = true;
+            saveBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            lengthContainer.classList.add('hidden');
+            widthContainer.classList.add('hidden');
+          } else {
+            saveBtn.disabled = false;
+            saveBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            lengthContainer.classList.remove('hidden');
+            widthContainer.classList.remove('hidden');
+          }
+        };
+        
+        specCategory.addEventListener('change', handleCategoryChange);
+        
+        // 更改保存按钮行为
+        saveBtn.textContent = '更新';
+        saveBtn.onclick = () => {
+          const categoryId = document.getElementById('spec-category').value;
+          const length = parseFloat(document.getElementById('spec-length').value);
+          const width = parseFloat(document.getElementById('spec-width').value);
+          const quantity = spec.quantity; // 保持原数量
+          
+          if (!categoryId) {
+            this.showToast('错误', '请选择产品种类', 'error');
+            return;
+          }
+          
+          if (!length || !width || length <= 0 || width <= 0) {
+            this.showToast('错误', '请输入有效的长度和宽度', 'error');
+            return;
+          }
+          
+          const result = this.dataManager.updateSpec(id, {
+            categoryId,
+            length,
+            width,
+            quantity
+          });
+          
+          if (result.success) {
+            this.showToast('成功', '规格更新成功', 'success');
+            this.toggleAddSpecForm();
+            this.updateSpecsList();
+            this.updateStatistics();
+            this.updateCharts();
+            
+            // 移除事件监听
+            specCategory.removeEventListener('change', handleCategoryChange);
+            
+            // 恢复保存按钮行为
+            saveBtn.textContent = '保存';
+            saveBtn.onclick = () => {
+              this.saveSpec();
+            };
+          } else {
+            this.showToast('错误', result.message, 'error');
+          }
+        };
+      }
+      
+      // 筛选规格列表
+      filterSpecsList() {
+        this.updateSpecsList();
+      }
+      
+      // 加载库存查询
+      loadInventory() {
+        this.populateCategories('search-category');
+        this.resetSearchForm();
+      }
+      
+      // 更新搜索规格下拉框
+      updateSearchSpecs() {
+        const categoryId = document.getElementById('search-category').value;
+        const specs = this.dataManager.getSpecsByCategory(categoryId);
+        const select = document.getElementById('search-spec');
+        
+        select.innerHTML = '<option value="">所有规格</option>';
+        
+        if (specs.length === 0) {
+          return;
+        }
+        
+        specs.forEach(spec => {
+          const option = document.createElement('option');
+          option.value = spec.id;
+          option.textContent = `${spec.length}×${spec.width}米`;
+          select.appendChild(option);
+        });
+      }
+      
+      // 重置搜索表单
+      resetSearchForm() {
+        document.getElementById('inventory-search-form').reset();
+        document.getElementById('search-spec').innerHTML = '<option value="">所有规格</option>';
+        document.getElementById('inventory-results').innerHTML = '<tr><td colspan="5" class="table-cell text-center text-gray-500">点击查询按钮查看所有库存数据</td></tr>';
+        document.getElementById('results-start').textContent = '0';
+        document.getElementById('results-end').textContent = '0';
+        document.getElementById('results-total').textContent = '0';
+        document.getElementById('prev-page').disabled = true;
+        document.getElementById('next-page').disabled = true;
+        this.currentPage = 1;
+      }
+      
+      // 搜索库存
+      searchInventory() {
+        const categoryId = document.getElementById('search-category').value;
+        const specId = document.getElementById('search-spec').value;
+        const stockStatus = document.getElementById('search-stock').value;
+        
+        const filters = {
+          categoryId: categoryId || undefined,
+          specId: specId || undefined,
+          stockStatus: stockStatus || undefined
+        };
+        
+        const results = this.dataManager.searchInventory(filters);
+        this.displayInventoryResults(results);
+      }
+      
+      // 显示库存查询结果
+      displayInventoryResults(results) {
+        const inventoryResults = document.getElementById('inventory-results');
+        const categories = this.dataManager.getCategories();
+        const categoriesMap = {};
+        categories.forEach(cat => {
+          categoriesMap[cat.id] = cat.name;
+        });
+        
+        // 分页
+        const start = (this.currentPage - 1) * this.pageSize;
+        const end = start + this.pageSize;
+        const paginatedResults = results.slice(start, end);
+        
+        if (paginatedResults.length === 0) {
+          inventoryResults.innerHTML = '<tr><td colspan="5" class="table-cell text-center text-gray-500">未找到匹配的库存记录</td></tr>';
+        } else {
+          let html = '';
+          paginatedResults.forEach(spec => {
+            let status = '库存正常';
+            let statusClass = 'badge-secondary';
+            
+            if (spec.quantity === 0) {
+              status = '库存不足';
+              statusClass = 'badge-danger';
+            }
+            
+            const categoryName = categoriesMap[spec.categoryId] || '未知';
+            const updatedAt = new Date(spec.updatedAt).toLocaleString();
+            
+            html += `
+              <tr>
+                <td class="table-cell">${categoryName}</td>
+                <td class="table-cell">${spec.width}×${spec.length}米</td>
+                <td class="table-cell">${spec.quantity}</td>
+                <td class="table-cell"><span class="badge ${statusClass}">${status}</span></td>
+                <td class="table-cell">${updatedAt}</td>
+              </tr>
+            `;
+          });
+          
+          inventoryResults.innerHTML = html;
+        }
+        
+        // 更新分页信息
+        document.getElementById('results-start').textContent = results.length > 0 ? start + 1 : 0;
+        document.getElementById('results-end').textContent = Math.min(end, results.length);
+        document.getElementById('results-total').textContent = results.length;
+        
+        // 更新分页按钮状态
+        document.getElementById('prev-page').disabled = this.currentPage === 1;
+        document.getElementById('next-page').disabled = end >= results.length;
+      }
+      
+      // 上一页
+      prevPage() {
+        if (this.currentPage > 1) {
+          this.currentPage--;
+          this.searchInventory();
+        }
+      }
+      
+      // 下一页
+      nextPage() {
+        this.currentPage++;
+        this.searchInventory();
+      }
+      
+      // 导出库存数据
+      exportInventoryData() {
+        const data = this.dataManager.exportInventoryData();
+        
+        if (data.length === 0) {
+          this.showToast('错误', '没有数据可导出', 'error');
+          return;
+        }
+        
+        // 转换为CSV
+        const headers = Object.keys(data[0]);
+        const csvRows = [];
+        
+        // 添加表头
+        csvRows.push(headers.join(','));
+        
+        // 添加数据行
+        for (const row of data) {
+          const values = headers.map(header => {
+            const value = row[header] ? `${row[header]}` : '';
+            return `"${value}"`;
+          });
+          csvRows.push(values.join(','));
+        }
+        
+        const csvContent = csvRows.join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.setAttribute('href', url);
+        link.setAttribute('download', `库存数据_${new Date().toISOString().split('T')[0]}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        this.showToast('成功', '库存数据导出成功', 'success');
+      }
+      
+      // 备份数据
+      backupData() {
+        const data = this.dataManager.backupData();
+        const blob = new Blob([data], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.setAttribute('href', url);
+        link.setAttribute('download', `仓库数据备份_${new Date().toISOString().split('T')[0]}.json`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        this.showToast('成功', '数据备份成功', 'success');
+      }
+      
+      // 显示添加示例数据确认
+      showAddSampleDataConfirm() {
+        this.showModal(
+          '添加示例数据',
+          '确定要添加示例数据吗？这将清除当前所有数据。',
+          () => {
+            // 清除当前数据
+            localStorage.removeItem('productCategories');
+            localStorage.removeItem('productSpecs');
+            localStorage.removeItem('activities');
+            localStorage.removeItem('inboundLogs');
+            localStorage.removeItem('outboundLogs');
+            
+            // 重新初始化数据管理器
+            this.dataManager = new DataManager();
+            
+            // 重新加载所有数据
+            this.loadDashboard();
+            this.loadInbound();
+            this.loadOutbound();
+            this.loadProducts();
+            this.loadInventory();
+            
+            this.showToast('成功', '示例数据添加成功', 'success');
+            this.hideModal();
+          }
+        );
+      }
+      
+      // 显示清除数据确认
+      showClearDataConfirm() {
+        this.showModal(
+          '清除所有数据',
+          '确定要清除所有数据吗？此操作不可撤销。',
+          () => {
+            // 清除当前数据
+            localStorage.removeItem('productCategories');
+            localStorage.removeItem('productSpecs');
+            localStorage.removeItem('activities');
+            localStorage.removeItem('inboundLogs');
+            localStorage.removeItem('outboundLogs');
+            
+            // 重新初始化数据管理器
+            this.dataManager = new DataManager();
+            
+            // 重新加载所有数据
+            this.loadDashboard();
+            this.loadInbound();
+            this.loadOutbound();
+            this.loadProducts();
+            this.loadInventory();
+            
+            this.showToast('成功', '所有数据已清除', 'success');
+          }
+        );
+      }
+      
+      // 显示模态框
+      showModal(title, content, confirmCallback) {
+        document.getElementById('modal-title').textContent = title;
+        document.getElementById('modal-content').innerHTML = content;
+        document.getElementById('modal').classList.remove('hidden');
+        
+        this.modalConfirmCallback = confirmCallback;
+        
+        // 根据是否有回调函数控制页脚显示
+        const modalFooter = document.getElementById('modal-footer');
+        if (confirmCallback) {
+          // 显示取消和确认按钮
+          modalFooter.style.display = 'flex';
+          document.getElementById('modal-cancel').style.display = 'inline-block';
+          document.getElementById('modal-confirm').style.display = 'inline-block';
+        } else {
+          // 隐藏确认和取消按钮，只显示关闭按钮
+          modalFooter.style.display = 'flex';
+          document.getElementById('modal-cancel').style.display = 'none';
+          document.getElementById('modal-confirm').style.display = 'none';
+        }
+      }
+      
+      // 隐藏模态框
+      hideModal() {
+        document.getElementById('modal').classList.add('hidden');
+        this.modalConfirmCallback = null;
+      }
+      
+      // 处理模态框确认
+      handleModalConfirm() {
+        if (this.modalConfirmCallback) {
+          this.modalConfirmCallback();
+        }
+        this.hideModal();
+      }
+      
+      // 显示通知提示
+      showToast(title, message, type = 'success') {
+        const toast = document.getElementById('toast');
+        const toastTitle = document.getElementById('toast-title');
+        const toastMessage = document.getElementById('toast-message');
+        const toastIcon = document.getElementById('toast-icon');
+        
+        toastTitle.textContent = title;
+        toastMessage.textContent = message;
+        
+        // 设置图标和颜色
+        if (type === 'success') {
+          toastIcon.innerHTML = '<i class="fa fa-check-circle"></i>';
+          toast.classList.remove('border-danger');
+          toast.classList.add('border-primary');
+        } else if (type === 'error') {
+          toastIcon.innerHTML = '<i class="fa fa-exclamation-circle"></i>';
+          toast.classList.remove('border-primary');
+          toast.classList.add('border-danger');
+        } else if (type === 'warning') {
+          toastIcon.innerHTML = '<i class="fa fa-exclamation-triangle"></i>';
+          toast.classList.remove('border-primary', 'border-danger');
+          toast.classList.add('border-warning');
+        }
+        
+        // 显示通知
+        toast.classList.remove('translate-x-full');
+        
+        // 3秒后自动隐藏
+        clearTimeout(this.toastTimeout);
+        this.toastTimeout = setTimeout(() => {
+          this.hideToast();
+        }, 3000);
+      }
+      
+      // 隐藏通知提示
+      hideToast() {
+        const toast = document.getElementById('toast');
+        toast.classList.add('translate-x-full');
+      }
+    }
+
+    // 初始化应用
+    document.addEventListener('DOMContentLoaded', () => {
+      const app = new WarehouseApp();
+    });
+  </script>
+</body>
 </html>
